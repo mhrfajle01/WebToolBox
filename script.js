@@ -226,6 +226,61 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>Characters: <span id="char-count">0</span></p>
           </div>
         </div></div>`,
+      'password-manager': `
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Add New Password</h5>
+            <form id="password-form">
+              <div class="mb-3">
+                <label for="website" class="form-label">Website</label>
+                <input type="text" class="form-control" id="website" required>
+              </div>
+              <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" required>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Save Password</button>
+            </form>
+          </div>
+        </div>
+        <div class="card mt-4">
+          <div class="card-body">
+            <h5 class="card-title">Saved Passwords</h5>
+            <div class="d-flex justify-content-between mb-3">
+              <input type="text" id="password-search" class="form-control me-2" placeholder="Search by website...">
+              <div class="btn-group">
+                <button class="btn btn-outline-success" id="import-btn">Import</button>
+                <button class="btn btn-outline-info" id="export-btn">Export</button>
+              </div>
+              <input type="file" id="import-file-input" class="d-none" accept=".txt">
+            </div>
+            <ul class="list-group" id="password-list"></ul>
+          </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="delete-confirm-modal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Are you sure you want to delete this password? This action cannot be undone.
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
     };
     toolContent.innerHTML = tools[toolName] || `<p>Select a tool from the sidebar.</p>`;
     addToolListeners(toolName);
@@ -306,6 +361,16 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
       case 'char-word-counter':
         document.getElementById('text-counter-input').addEventListener('input', updateCharWordCount);
+        break;
+      case 'password-manager':
+        document.getElementById('password-form').addEventListener('submit', savePassword);
+        document.getElementById('password-list').addEventListener('click', handlePasswordActions);
+        document.getElementById('password-search').addEventListener('input', (e) => renderPasswords(e.target.value));
+        document.getElementById('confirm-delete-btn').addEventListener('click', executeDelete);
+        document.getElementById('export-btn').addEventListener('click', exportPasswordsTXT);
+        document.getElementById('import-btn').addEventListener('click', () => document.getElementById('import-file-input').click());
+        document.getElementById('import-file-input').addEventListener('change', importPasswordsTXT);
+        renderPasswords();
         break;
     }
   };
@@ -626,6 +691,179 @@ document.addEventListener('DOMContentLoaded', () => {
     const chars = text.length;
     document.getElementById('word-count').textContent = words;
     document.getElementById('char-count').textContent = chars;
+  };
+
+  // --- Password Manager Logic ---
+  let deleteModal = null;
+  const getPasswords = () => {
+    return JSON.parse(localStorage.getItem('passwords')) || [];
+  };
+
+  const savePasswords = (passwords) => {
+    localStorage.setItem('passwords', JSON.stringify(passwords));
+  };
+
+  const renderPasswords = (searchTerm = '') => {
+    const passwordList = document.getElementById('password-list');
+    if (!passwordList) return;
+    
+    const passwords = getPasswords();
+    const filteredPasswords = passwords.filter(p => p.website.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    passwordList.innerHTML = '';
+    filteredPasswords.forEach((p, index) => {
+      const originalIndex = passwords.findIndex(orig => orig.website === p.website && orig.username === p.username && orig.password === p.password);
+      const li = document.createElement('li');
+      li.className = 'list-group-item';
+      li.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <strong>${p.website}</strong><br>
+            <small class="text-muted">${p.username} / <span class="password-text" data-password="${p.password}">${'*'.repeat(p.password.length)}</span></small>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary copy-password" title="Copy Password"><i class="bi bi-clipboard"></i></button>
+            <button class="btn btn-sm btn-outline-secondary toggle-visibility" title="Show/Hide Password"><i class="bi bi-eye"></i></button>
+            <button class="btn btn-sm btn-outline-danger delete-password" data-index="${originalIndex}" title="Delete Password"><i class="bi bi-trash"></i></button>
+          </div>
+        </div>
+      `;
+      passwordList.appendChild(li);
+    });
+  };
+
+  const savePassword = (e) => {
+    e.preventDefault();
+    const websiteInput = document.getElementById('website');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const newPassword = {
+      website: websiteInput.value,
+      username: usernameInput.value,
+      password: passwordInput.value,
+    };
+    const passwords = getPasswords();
+    passwords.push(newPassword);
+    savePasswords(passwords);
+    renderPasswords();
+    e.target.reset();
+    playSound('success');
+  };
+
+  const openDeleteConfirmation = (index) => {
+    const confirmBtn = document.getElementById('confirm-delete-btn');
+    confirmBtn.dataset.deleteIndex = index;
+    if (!deleteModal) {
+      deleteModal = new bootstrap.Modal(document.getElementById('delete-confirm-modal'));
+    }
+    deleteModal.show();
+  };
+
+  const executeDelete = () => {
+    const confirmBtn = document.getElementById('confirm-delete-btn');
+    const index = confirmBtn.dataset.deleteIndex;
+    const passwords = getPasswords();
+    passwords.splice(index, 1);
+    savePasswords(passwords);
+    renderPasswords(document.getElementById('password-search').value);
+    deleteModal.hide();
+    playSound('click');
+  };
+
+  const exportPasswordsTXT = () => {
+    const passwords = getPasswords();
+    if (passwords.length === 0) {
+      alert('No passwords to export.');
+      return;
+    }
+    const fileContent = passwords.map(p => `Website: ${p.website}, Username: ${p.username}, Password: ${p.password}`).join('\n');
+    const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'passwords.txt';
+    link.click();
+    URL.revokeObjectURL(link.href);
+    playSound('success');
+  };
+
+  const importPasswordsTXT = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target.result;
+        const lines = content.split('\n').filter(line => line.trim() !== '');
+        const existingPasswords = getPasswords();
+        let importedCount = 0;
+
+        lines.forEach(line => {
+          const websiteMatch = line.match(/Website: (.*?)(,|$)/);
+          const usernameMatch = line.match(/Username: (.*?)(,|$)/);
+          const passwordMatch = line.match(/Password: (.*)/);
+
+          if (websiteMatch && usernameMatch && passwordMatch) {
+            const newPassword = {
+              website: websiteMatch[1].trim(),
+              username: usernameMatch[1].trim(),
+              password: passwordMatch[1].trim(),
+            };
+            existingPasswords.push(newPassword);
+            importedCount++;
+          }
+        });
+
+        if (importedCount > 0) {
+          savePasswords(existingPasswords);
+          renderPasswords();
+          alert(`${importedCount} passwords imported successfully!`);
+        } else {
+          alert('No valid passwords found in the file. Please check the format.');
+        }
+      } catch (error) {
+        alert('An error occurred while importing the file.');
+        console.error('Import error:', error);
+      } finally {
+        // Reset file input to allow importing the same file again
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      playSound('success');
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+    });
+  };
+
+  const handlePasswordActions = (e) => {
+    const target = e.target.closest('button');
+    if (!target) return;
+
+    if (target.classList.contains('delete-password')) {
+      const index = target.dataset.index;
+      openDeleteConfirmation(index);
+    } else if (target.classList.contains('copy-password')) {
+      const passwordText = target.closest('.list-group-item').querySelector('.password-text').dataset.password;
+      copyToClipboard(passwordText);
+    } else if (target.classList.contains('toggle-visibility')) {
+      const passwordSpan = target.closest('.list-group-item').querySelector('.password-text');
+      const icon = target.querySelector('i');
+      const password = passwordSpan.dataset.password;
+      if (passwordSpan.textContent === password) {
+        passwordSpan.textContent = '*'.repeat(password.length);
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      } else {
+        passwordSpan.textContent = password;
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      }
+    }
   };
 
   // --- Initialization ---

@@ -280,6 +280,22 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
         </div>
+
+        <!-- Copy Options Modal -->
+        <div class="modal fade" id="copy-options-modal" tabindex="-1" aria-labelledby="copyModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="copyModalLabel">Copy Options</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body text-center">
+                <button type="button" class="btn btn-primary mb-2 w-100" id="copy-username-btn">Copy Username</button>
+                <button type="button" class="btn btn-primary w-100" id="copy-password-btn">Copy Password</button>
+              </div>
+            </div>
+          </div>
+        </div>
       `
     };
     toolContent.innerHTML = tools[toolName] || `<p>Select a tool from the sidebar.</p>`;
@@ -370,6 +386,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('export-btn').addEventListener('click', exportPasswordsTXT);
         document.getElementById('import-btn').addEventListener('click', () => document.getElementById('import-file-input').click());
         document.getElementById('import-file-input').addEventListener('change', importPasswordsTXT);
+        document.getElementById('copy-username-btn').addEventListener('click', handleCopyAction);
+        document.getElementById('copy-password-btn').addEventListener('click', handleCopyAction);
         
         if (!deleteModal) {
           deleteModal = new bootstrap.Modal(document.getElementById('delete-confirm-modal'));
@@ -700,6 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Password Manager Logic ---
   let deleteModal = null;
+  let copyModal = null;
   const getPasswords = () => {
     return JSON.parse(localStorage.getItem('passwords')) || [];
   };
@@ -727,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <small class="text-muted">${p.username} / <span class="password-text" data-password="${p.password}">${'*'.repeat(p.password.length)}</span></small>
           </div>
           <div class="btn-group">
-            <button class="btn btn-sm btn-outline-secondary copy-password" title="Copy Password"><i class="bi bi-clipboard"></i></button>
+            <button class="btn btn-sm btn-outline-secondary copy-password" data-index="${originalIndex}" title="Copy..."><i class="bi bi-clipboard-plus"></i></button>
             <button class="btn btn-sm btn-outline-secondary toggle-visibility" title="Show/Hide Password"><i class="bi bi-eye"></i></button>
             <button class="btn btn-sm btn-outline-danger delete-password" data-index="${originalIndex}" title="Delete Password"><i class="bi bi-trash"></i></button>
           </div>
@@ -773,6 +792,27 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPasswords(document.getElementById('password-search').value);
     deleteModal.hide();
     playSound('click');
+  };
+
+  const openCopyOptionsModal = (index) => {
+    const passwords = getPasswords();
+    const passwordData = passwords[index];
+    const copyUsernameBtn = document.getElementById('copy-username-btn');
+    const copyPasswordBtn = document.getElementById('copy-password-btn');
+
+    copyUsernameBtn.dataset.copyValue = passwordData.username;
+    copyPasswordBtn.dataset.copyValue = passwordData.password;
+
+    if (!copyModal) {
+      copyModal = new bootstrap.Modal(document.getElementById('copy-options-modal'));
+    }
+    copyModal.show();
+  };
+
+  const handleCopyAction = (e) => {
+    const valueToCopy = e.target.dataset.copyValue;
+    copyToClipboard(valueToCopy);
+    copyModal.hide();
   };
 
   const exportPasswordsTXT = () => {
@@ -830,7 +870,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('An error occurred while importing the file.');
         console.error('Import error:', error);
       } finally {
-        // Reset file input to allow importing the same file again
         e.target.value = '';
       }
     };
@@ -849,12 +888,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const target = e.target.closest('button');
     if (!target) return;
 
+    const index = target.dataset.index;
+
     if (target.classList.contains('delete-password')) {
-      const index = target.dataset.index;
       openDeleteConfirmation(index);
     } else if (target.classList.contains('copy-password')) {
-      const passwordText = target.closest('.list-group-item').querySelector('.password-text').dataset.password;
-      copyToClipboard(passwordText);
+      openCopyOptionsModal(index);
     } else if (target.classList.contains('toggle-visibility')) {
       const passwordSpan = target.closest('.list-group-item').querySelector('.password-text');
       const icon = target.querySelector('i');

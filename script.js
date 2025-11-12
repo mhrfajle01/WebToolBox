@@ -392,6 +392,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!deleteModal) {
           deleteModal = new bootstrap.Modal(document.getElementById('delete-confirm-modal'));
         }
+        if (!copyModal) {
+          copyModal = new bootstrap.Modal(document.getElementById('copy-options-modal'));
+        }
         
         renderPasswords();
         break;
@@ -803,9 +806,6 @@ document.addEventListener('DOMContentLoaded', () => {
     copyUsernameBtn.dataset.copyValue = passwordData.username;
     copyPasswordBtn.dataset.copyValue = passwordData.password;
 
-    if (!copyModal) {
-      copyModal = new bootstrap.Modal(document.getElementById('copy-options-modal'));
-    }
     copyModal.show();
   };
 

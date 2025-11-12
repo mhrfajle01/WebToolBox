@@ -370,6 +370,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('export-btn').addEventListener('click', exportPasswordsTXT);
         document.getElementById('import-btn').addEventListener('click', () => document.getElementById('import-file-input').click());
         document.getElementById('import-file-input').addEventListener('change', importPasswordsTXT);
+        
+        if (!deleteModal) {
+          deleteModal = new bootstrap.Modal(document.getElementById('delete-confirm-modal'));
+        }
+        
         renderPasswords();
         break;
     }

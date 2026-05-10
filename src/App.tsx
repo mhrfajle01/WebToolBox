@@ -39,10 +39,14 @@ const App: React.FC = () => {
   }
 
   return (
-    <Router basename={import.meta.env.BASE_URL}>
+    <Router basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <Toaster position="top-center" richColors />
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <Login />
+          </React.Suspense>
+        } />
         
         <Route path="/" element={
           <ProtectedRoute>

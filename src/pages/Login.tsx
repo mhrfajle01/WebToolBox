@@ -1,18 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './Login.module.css';
 import { auth } from '../lib/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { Wrench } from 'lucide-react';
+import { useAuthStore } from '../store/useAuthStore';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      navigate('/');
+      // Navigation will be handled by the useEffect above when the user state updates
     } catch (error) {
       console.error('Login failed', error);
     }
@@ -39,7 +47,7 @@ const Login: React.FC = () => {
             <span>or</span>
           </div>
 
-          <form className={styles.form}>
+          <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
             <input type="email" placeholder="Email Address" className={styles.input} />
             <input type="password" placeholder="Password" className={styles.input} />
             <button type="submit" className={styles.submitBtn}>Continue</button>

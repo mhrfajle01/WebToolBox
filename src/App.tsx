@@ -39,7 +39,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <Router basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+    <Router basename="/WebToolBox">
       <Toaster position="top-center" richColors />
       <Routes>
         <Route path="/login" element={
@@ -105,6 +105,9 @@ const App: React.FC = () => {
             </React.Suspense>
           </ProtectedRoute>
         } />
+
+        {/* Catch-all route to redirect back to home for SPA support */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

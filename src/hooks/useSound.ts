@@ -7,12 +7,13 @@ export const useSound = () => {
     const isSoundEnabled = localStorage.getItem('settings_sounds') !== 'false';
     if (!isSoundEnabled) return;
 
+    const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
     const sounds: Record<SoundEffect, string> = {
-      click: '/sounds/click.mp3',
-      success: '/sounds/success.mp3',
-      delete: '/sounds/click.mp3',
-      switch: '/sounds/click.mp3',
-      palette: '/sounds/success.mp3'
+      click: `${baseUrl}/sounds/click.mp3`,
+      success: `${baseUrl}/sounds/success.mp3`,
+      delete: `${baseUrl}/sounds/click.mp3`,
+      switch: `${baseUrl}/sounds/click.mp3`,
+      palette: `${baseUrl}/sounds/success.mp3`
     };
 
     const audio = new Audio(sounds[effect]);

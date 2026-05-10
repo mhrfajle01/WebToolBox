@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Login.module.css';
 import { auth } from '../lib/firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword,
+  updateProfile
+} from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { Wrench, Loader2 } from 'lucide-react';
+import { Wrench, Loader2, Mail, Lock, User } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { toast } from 'sonner';
 
@@ -11,6 +17,11 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -24,22 +35,39 @@ const Login: React.FC = () => {
     try {
       await signInWithPopup(auth, provider);
       toast.success('Successfully signed in!');
-      // Navigation will be handled by the useEffect above
     } catch (error: any) {
       console.error('Login failed', error);
-      toast.error(error.message || 'Login failed. Please check your internet connection and try again.');
-      
-      if (error.code === 'auth/unauthorized-domain') {
-        toast.error('This domain is not authorized in Firebase. Please add mhrfajle01.github.io to your authorized domains.');
-      }
+      toast.error(error.message || 'Login failed.');
     } finally {
       setIsLoggingIn(false);
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info('Email login is not yet implemented. Please use Google Sign-in.');
+    if (!email || !password) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    
+    setIsLoggingIn(true);
+    try {
+      if (isSignUp) {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        if (displayName) {
+          await updateProfile(userCredential.user, { displayName });
+        }
+        toast.success('Account created successfully!');
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+        toast.success('Signed in successfully!');
+      }
+    } catch (error: any) {
+      console.error('Auth error', error);
+      toast.error(error.message || 'Authentication failed');
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   return (
@@ -49,8 +77,8 @@ const Login: React.FC = () => {
           <div className={styles.logo}>
             <Wrench size={40} color="var(--accent-primary)" />
           </div>
-          <h1>Welcome to WebToolBox</h1>
-          <p>The ultimate premium utility suite.</p>
+          <h1>{isSignUp ? 'Create Account' : 'Welcome to WebToolBox'}</h1>
+          <p>{isSignUp ? 'Join the premium utility suite.' : 'The ultimate premium utility suite.'}</p>
         </div>
 
         <div className={styles.body}>
@@ -64,18 +92,60 @@ const Login: React.FC = () => {
             ) : (
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
             )}
-            <span>{isLoggingIn ? 'Signing in...' : 'Sign in with Google'}</span>
+            <span>{isSignUp ? 'Sign up with Google' : 'Sign in with Google'}</span>
           </button>
           
           <div className={styles.divider}>
             <span>or</span>
           </div>
 
-          <form className={styles.form} onSubmit={handleFormSubmit}>
-            <input type="email" placeholder="Email Address" className={styles.input} />
-            <input type="password" placeholder="Password" className={styles.input} />
-            <button type="submit" className={styles.submitBtn}>Continue</button>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            {isSignUp && (
+              <div className={styles.inputWrapper}>
+                <User size={18} className={styles.inputIcon} />
+                <input 
+                  type="text" 
+                  placeholder="Full Name" 
+                  className={styles.input} 
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                />
+              </div>
+            )}
+            <div className={styles.inputWrapper}>
+              <Mail size={18} className={styles.inputIcon} />
+              <input 
+                type="email" 
+                placeholder="Email Address" 
+                className={styles.input} 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className={styles.inputWrapper}>
+              <Lock size={18} className={styles.inputIcon} />
+              <input 
+                type="password" 
+                placeholder="Password" 
+                className={styles.input} 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" className={styles.submitBtn} disabled={isLoggingIn}>
+              {isLoggingIn ? <Loader2 className="animate-spin" size={20} /> : (isSignUp ? 'Create Account' : 'Continue')}
+            </button>
           </form>
+
+          <div className={styles.toggleMode}>
+            {isSignUp ? (
+              <p>Already have an account? <button onClick={() => setIsSignUp(false)}>Sign In</button></p>
+            ) : (
+              <p>Don't have an account? <button onClick={() => setIsSignUp(true)}>Sign Up</button></p>
+            )}
+          </div>
         </div>
 
         <div className={styles.footer}>

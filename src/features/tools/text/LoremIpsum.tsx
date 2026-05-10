@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './LoremIpsum.module.css';
-import { FileText, Copy, Trash2, RefreshCw } from 'lucide-react';
+import { Copy, Trash2, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSound } from '../../../hooks/useSound';
 

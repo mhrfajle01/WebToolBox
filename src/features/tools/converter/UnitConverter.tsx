@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import styles from './UnitConverter.module.css';
 import { ArrowRightLeft, RefreshCw, Copy } from 'lucide-react';
 import { toast } from 'sonner';
@@ -33,19 +33,21 @@ const units = {
 const UnitConverter: React.FC = () => {
   const [category, setCategory] = useState<UnitCategory>('length');
   const [value, setValue] = useState<string>('1');
-  const [fromUnit, setFromUnit] = useState<string>('');
-  const [toUnit, setToUnit] = useState<string>('');
-  const [result, setResult] = useState<number | null>(null);
+  const [fromUnit, setFromUnit] = useState<string>('meters');
+  const [toUnit, setToUnit] = useState<string>('kilometers');
+  const [prevCategory, setPrevCategory] = useState<UnitCategory>(category);
 
-  useEffect(() => {
+  // Adjust units when category changes
+  if (category !== prevCategory) {
     const categoryUnits = Object.keys(units[category]);
     setFromUnit(categoryUnits[0]);
     setToUnit(categoryUnits[1] || categoryUnits[0]);
-  }, [category]);
+    setPrevCategory(category);
+  }
 
-  const convert = () => {
+  const result = useMemo(() => {
     const val = parseFloat(value);
-    if (isNaN(val)) return;
+    if (isNaN(val)) return 0;
 
     if (category === 'temperature') {
       let celsius = val;
@@ -56,17 +58,15 @@ const UnitConverter: React.FC = () => {
       if (toUnit === 'fahrenheit') finalResult = (celsius * 9/5) + 32;
       if (toUnit === 'kelvin') finalResult = celsius + 273.15;
       
-      setResult(finalResult);
+      return finalResult;
     } else {
-      const fromRate = (units[category] as any)[fromUnit];
-      const toRate = (units[category] as any)[toUnit];
+      const categoryUnits = units[category as keyof Omit<typeof units, 'temperature'>] as Record<string, number>;
+      const fromRate = categoryUnits[fromUnit];
+      const toRate = categoryUnits[toUnit];
+      if (!fromRate || !toRate) return 0;
       const baseValue = val / fromRate;
-      setResult(baseValue * toRate);
+      return baseValue * toRate;
     }
-  };
-
-  useEffect(() => {
-    convert();
   }, [value, fromUnit, toUnit, category]);
 
   const handleSwap = () => {

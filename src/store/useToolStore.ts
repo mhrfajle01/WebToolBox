@@ -3,7 +3,6 @@ import {
   collection, 
   addDoc, 
   query, 
-  where, 
   getDocs, 
   serverTimestamp, 
   setDoc,
@@ -18,7 +17,7 @@ import type { CustomTool } from '../types/tool';
 interface ToolHistory {
   id: string;
   toolId: string;
-  timestamp: any;
+  timestamp: Date | { toDate: () => Date } | null;
 }
 
 interface ToolStore {

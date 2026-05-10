@@ -3,7 +3,7 @@ import styles from './History.module.css';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToolStore } from '../store/useToolStore';
 import { toolRegistry } from '../lib/toolRegistry';
-import { Clock, ExternalLink, Calendar, Trash2 } from 'lucide-react';
+import { Clock, ExternalLink, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSound } from '../hooks/useSound';
 import MainLayout from '../components/layout/MainLayout';
@@ -20,9 +20,13 @@ const History: React.FC = () => {
     }
   }, [user, fetchUserData]);
 
-  const formatDate = (timestamp: any) => {
+  const formatDate = (timestamp: Date | { toDate: () => Date } | null) => {
     if (!timestamp) return 'Just now';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const date = (timestamp instanceof Date) 
+      ? timestamp 
+      : (typeof timestamp === 'object' && 'toDate' in timestamp) 
+        ? (timestamp as { toDate: () => Date }).toDate() 
+        : new Date(timestamp as string);
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',

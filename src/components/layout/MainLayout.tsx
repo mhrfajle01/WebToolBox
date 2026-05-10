@@ -1,4 +1,5 @@
-import React, { ReactNode, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
 import styles from './MainLayout.module.css';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -36,7 +37,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
   const { play } = useSound();
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024 && !isFullBleed);
+  const [prevPathname, setPrevPathname] = useState(location.pathname);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+
+  // Auto-close sidebar on mobile when navigating
+  if (location.pathname !== prevPathname) {
+    setPrevPathname(location.pathname);
+    if (window.innerWidth <= 1024) {
+      setIsSidebarOpen(false);
+    }
+  }
+
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
@@ -90,13 +101,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isSidebarOpen]);
-
-  useEffect(() => {
-    // Auto-close sidebar on mobile when navigating
-    if (window.innerWidth <= 1024) {
-      setIsSidebarOpen(false);
-    }
-  }, [location.pathname]);
 
   const toggleSidebar = () => {
     play('click');

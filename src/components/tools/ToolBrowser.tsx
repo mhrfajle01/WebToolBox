@@ -1,12 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import styles from './ToolBrowser.module.css';
 import { 
   ArrowLeft, 
   RotateCw, 
   ExternalLink, 
   Copy, 
-  Maximize2, 
-  Minimize2,
   Lock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

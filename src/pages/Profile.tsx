@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './Profile.module.css';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToolStore } from '../store/useToolStore';
@@ -9,7 +9,6 @@ import MainLayout from '../components/layout/MainLayout';
 const Profile: React.FC = () => {
   const { user } = useAuthStore();
   const { favorites, history } = useToolStore();
-  const [isEditing, setIsEditing] = useState(false);
 
   if (!user) return null;
 

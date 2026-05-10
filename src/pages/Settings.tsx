@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import styles from './Settings.module.css';
 import { 
-  Bell, 
   Volume2, 
-  Moon, 
   Monitor, 
   Shield, 
   Keyboard, 
   Database,
-  Check,
   Plus,
   Trash2,
   ExternalLink,
@@ -33,7 +30,6 @@ const Settings: React.FC = () => {
   // Load initial states from localStorage
   const [soundEnabled, setSoundEnabled] = useState(() => localStorage.getItem('settings_sounds') !== 'false');
   const [hapticEnabled, setHapticEnabled] = useState(true);
-  const [notifsEnabled, setNotifsEnabled] = useState(true);
 
   const handleToggleSound = (enabled: boolean) => {
     setSoundEnabled(enabled);

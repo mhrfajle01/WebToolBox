@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import MainLayout from './components/layout/MainLayout';
 import { useAuthStore } from './store/useAuthStore';
 
 import ProtectedRoute from './components/auth/ProtectedRoute';

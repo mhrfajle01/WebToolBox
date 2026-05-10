@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './HashGenerator.module.css';
-import { Shield, Copy, Trash2 } from 'lucide-react';
+import { Copy, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import CryptoJS from 'crypto-js';
 import { useSound } from '../../../hooks/useSound';

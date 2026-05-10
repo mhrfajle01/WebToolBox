@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { toolRegistry } from '../lib/toolRegistry';
 import styles from './ToolDetail.module.css';
-import { ArrowLeft, Star, Share2, Info, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Star, Share2, Info } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToolStore } from '../store/useToolStore';
 import MainLayout from '../components/layout/MainLayout';
@@ -11,6 +11,7 @@ import ToolBrowser from '../components/tools/ToolBrowser';
 import { toast } from 'sonner';
 
 import { useSound } from '../hooks/useSound';
+import { type CustomTool, type ToolDefinition } from '../types/tool';
 
 const ToolDetail: React.FC = () => {
   const { toolId } = useParams<{ toolId: string }>();
@@ -21,14 +22,14 @@ const ToolDetail: React.FC = () => {
   
   const tool = useMemo(() => {
     const builtIn = toolRegistry.find(t => t.id === toolId);
-    if (builtIn) return { ...builtIn, isCustom: false };
+    if (builtIn) return { ...builtIn, isCustom: false } as (ToolDefinition & { isCustom: false });
 
     const custom = customTools.find(t => t.id === toolId);
     if (custom) return {
       ...custom,
       isCustom: true,
       category: 'Personal'
-    };
+    } as (CustomTool & { isCustom: true, category: 'Personal' });
 
     return null;
   }, [toolId, customTools]);
@@ -73,15 +74,18 @@ const ToolDetail: React.FC = () => {
 
   if (tool.isCustom) {
     return (
-      <MainLayout isFullBleed>
+      <MainLayout>
         <ToolBrowser 
-          url={(tool as any).url} 
+          url={tool.url} 
           name={tool.name} 
-          icon={(tool as any).icon} 
+          icon={tool.icon} 
         />
       </MainLayout>
     );
   }
+
+  // At this point, tool is a ToolDefinition
+  const builtInTool = tool as ToolDefinition;
 
   return (
     <MainLayout>
@@ -92,8 +96,8 @@ const ToolDetail: React.FC = () => {
               <ArrowLeft size={20} />
             </button>
             <div className={styles.titleInfo}>
-              <h1>{tool.name}</h1>
-              <span className={styles.categoryTag}>{tool.category}</span>
+              <h1>{builtInTool.name}</h1>
+              <span className={styles.categoryTag}>{builtInTool.category}</span>
             </div>
           </div>
           <div className={styles.headerRight}>
@@ -118,14 +122,14 @@ const ToolDetail: React.FC = () => {
                 <p>Loading tool engine...</p>
               </div>
             }>
-              {tool.component && <tool.component />}
+              {builtInTool.component && <builtInTool.component />}
             </React.Suspense>
           </div>
 
           <aside className={styles.infoSidebar}>
             <div className={`${styles.infoCard} glass`}>
               <h3><Info size={18} /> About this tool</h3>
-              <p>{tool.description}</p>
+              <p>{builtInTool.description}</p>
             </div>
             <div className={`${styles.infoCard} glass`}>
               <h3>Quick Actions</h3>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './CaseConverter.module.css';
-import { Type, Copy, Trash2, ArrowDown, ArrowUp } from 'lucide-react';
+import { Copy, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const CaseConverter: React.FC = () => {

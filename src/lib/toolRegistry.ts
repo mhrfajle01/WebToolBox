@@ -1,4 +1,4 @@
-import { Calculator, Type, Hash, Globe, Code, Image, Lock, Shield, FileText, Timer, Palette } from 'lucide-react';
+import { Calculator, Type, Globe, Code, Lock, Shield, FileText, Palette } from 'lucide-react';
 import React from 'react';
 import type { ToolDefinition } from '../types/tool';
 

@@ -51,7 +51,7 @@ const Dashboard: React.FC = () => {
     }).filter(Boolean).slice(0, 5);
   }, [history, allTools]);
 
-  const handleLaunch = (tool: any) => {
+  const handleLaunch = (tool: { id: string, isCustom: boolean }) => {
     play('click');
     navigate(`/tools/${tool.id}`);
   };
@@ -102,24 +102,27 @@ const Dashboard: React.FC = () => {
             </div>
             <div className={styles.list}>
               {recentTools.length > 0 ? (
-                recentTools.map((tool: any) => (
-                  <div key={tool.historyId} className={styles.listItem}>
-                    <div className={styles.toolIcon}>
-                      {typeof tool.icon === 'string' ? (
-                        <span style={{ fontSize: '1.2rem' }}>{tool.icon}</span>
-                      ) : (
-                        <tool.icon size={18} />
-                      )}
+                recentTools.map((tool) => {
+                  if (!tool) return null;
+                  return (
+                    <div key={tool.historyId} className={styles.listItem}>
+                      <div className={styles.toolIcon}>
+                        {typeof tool.icon === 'string' ? (
+                          <span style={{ fontSize: '1.2rem' }}>{tool.icon}</span>
+                        ) : (
+                          <tool.icon size={18} />
+                        )}
+                      </div>
+                      <div className={styles.toolDetails}>
+                        <h4>{tool.name}</h4>
+                        <p>{tool.category}</p>
+                      </div>
+                      <button className={styles.launchBtn} onClick={() => handleLaunch(tool)}>
+                        {tool.isCustom ? <ExternalLink size={16} /> : 'Launch'}
+                      </button>
                     </div>
-                    <div className={styles.toolDetails}>
-                      <h4>{tool.name}</h4>
-                      <p>{tool.category}</p>
-                    </div>
-                    <button className={styles.launchBtn} onClick={() => handleLaunch(tool)}>
-                      {tool.isCustom ? <ExternalLink size={16} /> : 'Launch'}
-                    </button>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <p className={styles.emptyMsg}>You haven't used any tools yet.</p>
               )}

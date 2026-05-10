@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styles from './PasswordGenerator.module.css';
-import { Lock, Copy, RefreshCw, Shield, Check } from 'lucide-react';
+import { Copy, RefreshCw } from 'lucide-react';
 
 import { toast } from 'sonner';
 
 const PasswordGenerator: React.FC = () => {
-  const [password, setPassword] = useState('');
   const [length, setLength] = useState(16);
   const [options, setOptions] = useState({
     uppercase: true,
@@ -13,7 +12,7 @@ const PasswordGenerator: React.FC = () => {
     symbols: true
   });
 
-  const generatePassword = () => {
+  const generatePasswordValue = useCallback(() => {
     const lower = 'abcdefghijklmnopqrstuvwxyz';
     const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const numbers = '0123456789';
@@ -28,11 +27,33 @@ const PasswordGenerator: React.FC = () => {
     for (let i = 0; i < length; i++) {
       generated += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    setPassword(generated);
+    return generated;
+  }, [length, options]);
+
+  const [password, setPassword] = useState(() => {
+    // Initial password generation
+    const lower = 'abcdefghijklmnopqrstuvwxyz';
+    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const chars = lower + upper + numbers + symbols;
+    let generated = '';
+    for (let i = 0; i < 16; i++) {
+      generated += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return generated;
+  });
+
+  const generatePassword = () => {
+    setPassword(generatePasswordValue());
   };
 
   useEffect(() => {
-    generatePassword();
+    // Only auto-generate if settings change, but to avoid the lint error
+    // we can skip this if we want it to be manual-only after mount.
+    // Or we can use a ref to allow it.
+    // For now, let's just make it manual to satisfy the "perfect" deploy requirement
+    // and rely on the initial state for the first password.
   }, []);
 
   const copyToClipboard = () => {

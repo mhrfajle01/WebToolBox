@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Command, X, ExternalLink } from 'lucide-react';
+import { Search, Command, ExternalLink } from 'lucide-react';
 import { toolRegistry } from '../../lib/toolRegistry';
 import { useToolStore } from '../../store/useToolStore';
+import { type ToolDefinition } from '../../types/tool';
 import styles from './CommandPalette.module.css';
 
 interface CommandPaletteProps {
@@ -13,21 +14,32 @@ interface CommandPaletteProps {
 const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const { customTools } = useToolStore();
+
+  // Reset state when palette opens
+  if (isOpen && !prevIsOpen) {
+    setQuery('');
+    setSelectedIndex(0);
+    setPrevIsOpen(true);
+  } else if (!isOpen && prevIsOpen) {
+    setPrevIsOpen(false);
+  }
 
   const allTools = useMemo(() => {
     const builtIn = toolRegistry.map(t => ({ ...t, isCustom: false }));
     const custom = customTools.map(t => ({
       id: t.id,
       name: t.name,
-      category: 'Personal',
+      category: 'Personal' as const,
       icon: t.icon,
       url: t.url,
-      isCustom: true
+      isCustom: true,
+      description: t.description || ''
     }));
-    return [...builtIn, ...custom];
+    return [...builtIn, ...custom] as ToolDefinition[];
   }, [customTools]);
 
   const filteredTools = allTools.filter(tool =>
@@ -38,19 +50,17 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus();
-      setQuery('');
-      setSelectedIndex(0);
     }
   }, [isOpen]);
 
-  const handleSelect = (tool: any) => {
-    if (tool.isCustom) {
+  const handleSelect = useCallback((tool: ToolDefinition) => {
+    if (tool.isCustom && tool.url) {
       window.open(tool.url, '_blank');
     } else {
       navigate(`/tools/${tool.id}`);
     }
     onClose();
-  };
+  }, [navigate, onClose]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -73,7 +83,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, filteredTools, selectedIndex, navigate, onClose]);
+  }, [isOpen, filteredTools, selectedIndex, handleSelect, onClose]);
 
   if (!isOpen) return null;
 

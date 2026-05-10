@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './AddCustomToolModal.module.css';
-import { X, Link as LinkIcon, Plus } from 'lucide-react';
+import { X, Link as LinkIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToolStore } from '../../store/useToolStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -39,7 +39,7 @@ const AddCustomToolModal: React.FC<AddCustomToolModalProps> = ({ isOpen, onClose
     // Basic URL validation
     try {
       new URL(formData.url.startsWith('http') ? formData.url : `https://${formData.url}`);
-    } catch (e) {
+    } catch {
       toast.error('Please enter a valid URL.');
       return;
     }
@@ -60,7 +60,7 @@ const AddCustomToolModal: React.FC<AddCustomToolModalProps> = ({ isOpen, onClose
         category: 'Personal',
         icon: '🔗'
       });
-    } catch (error) {
+    } catch {
       toast.error('Failed to add custom tool.');
     } finally {
       setLoading(false);

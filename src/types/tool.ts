@@ -30,5 +30,5 @@ export interface CustomTool {
   description: string;
   category: ToolCategory;
   icon: string;
-  createdAt: any;
+  createdAt: Date | { toDate: () => Date } | null;
 }

@@ -5,7 +5,7 @@ import { Search, Filter, Star, Plus, Trash2, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToolStore } from '../store/useToolStore';
-import type { ToolCategory, ToolDefinition } from '../types/tool';
+import type { ToolCategory } from '../types/tool';
 import MainLayout from '../components/layout/MainLayout';
 
 const Tools: React.FC = () => {
@@ -19,7 +19,7 @@ const Tools: React.FC = () => {
     if (user && favorites.length === 0 && customTools.length === 0) {
       fetchUserData(user.uid);
     }
-  }, [user, fetchUserData]);
+  }, [user, fetchUserData, favorites.length, customTools.length]);
 
   const categories: (ToolCategory | 'All')[] = ['All', 'Text', 'Calculator', 'Converter', 'Developer', 'Security', 'Design', 'Time', 'Files', 'Personal'];
 
@@ -52,7 +52,7 @@ const Tools: React.FC = () => {
     }
   };
 
-  const handleToolClick = (tool: any) => {
+  const handleToolClick = (tool: { id: string }) => {
     navigate(`/tools/${tool.id}`);
   };
 

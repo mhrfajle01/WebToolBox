@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './JsonFormatter.module.css';
-import { Code, Copy, Trash2, AlignLeft, Minimize2 } from 'lucide-react';
+import { Copy, Trash2, AlignLeft, Minimize2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const JsonFormatter: React.FC = () => {
@@ -11,8 +11,8 @@ const JsonFormatter: React.FC = () => {
       const obj = JSON.parse(json);
       setJson(JSON.stringify(obj, null, 2));
       toast.success('JSON formatted successfully');
-    } catch (e: any) {
-      toast.error('Invalid JSON: ' + e.message);
+    } catch (e) {
+      toast.error('Invalid JSON: ' + (e instanceof Error ? e.message : String(e)));
     }
   };
 
@@ -21,8 +21,8 @@ const JsonFormatter: React.FC = () => {
       const obj = JSON.parse(json);
       setJson(JSON.stringify(obj));
       toast.success('JSON minified');
-    } catch (e: any) {
-      toast.error('Invalid JSON: ' + e.message);
+    } catch (e) {
+      toast.error('Invalid JSON: ' + (e instanceof Error ? e.message : String(e)));
     }
   };
 

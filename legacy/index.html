@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Toolbox</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrapper d-flex">
+    <nav class="sidebar p-3">
+      <div class="sidebar-header d-flex justify-content-between align-items-center">
+        <h4 class="m-0">Tools</h4>
+        <button class="btn d-lg-none" id="close-sidebar"><i class="bi bi-x-lg text-white"></i></button>
+      </div>
+      <ul class="nav flex-column mt-3">
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="age-calculator">Age Calculator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="date-difference">Date Difference</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="bmi-calculator">BMI Calculator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="loan-calculator">Loan Calculator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="percentage-calculator">Percentage Calculator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="tip-calculator">Tip Calculator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="hex-to-rgb">HEX to RGB Converter</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="aspect-ratio-calculator">Aspect Ratio Calculator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="simple-interest-calculator">Simple Interest Calculator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="text-case-converter">Text Case Converter</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="random-number-generator">Random Number Generator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="password-generator">Password Generator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="qr-code-generator">QR Code Generator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="stopwatch">Stopwatch</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="countdown-timer">Countdown Timer</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="color-picker">Color Picker</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="notes">Notes</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="screen-resolution">Screen Resolution</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="char-word-counter">Char/Word Counter</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="password-manager">Password Manager</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="lorem-ipsum-generator">Lorem Ipsum Generator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="hash-generator">Hash Generator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="base64-converter">Base64 Converter</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="url-converter">URL Encoder/Decoder</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="timestamp-converter">Timestamp Converter</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="simple-calculator">Simple Calculator</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tool="unit-converter">Unit Converter</a></li>
+      </ul>
+    </nav>
+
+    <main class="content p-4 flex-grow-1">
+      <header class="d-flex justify-content-between align-items-center mb-4">
+        <button class="btn d-lg-none" id="open-sidebar"><i class="bi bi-list fs-3"></i></button>
+        <h1 id="tool-title" class="m-0">Welcome to Web Toolbox</h1>
+        <div class="form-check form-switch ms-3">
+          <input class="form-check-input" type="checkbox" id="theme-switch">
+          <label class="form-check-label" for="theme-switch">Light Mode</label>
+        </div>
+      </header>
+      <div id="tool-content" class="pt-4">
+        <!-- Tool content will be loaded here -->
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <!-- Toasts will be appended here -->
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

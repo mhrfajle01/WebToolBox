@@ -1,0 +1,254 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.header h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  color: var(--text-secondary);
+}
+
+.layout {
+  display: flex;
+  gap: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+}
+
+.sidebar {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+}
+
+.tabBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tabBtn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.activeTab {
+  background: var(--accent-primary) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.main {
+  flex: 1;
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.section h3 {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.optionInfo label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.optionInfo p {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+/* Custom Toggle */
+.toggle {
+  width: 44px;
+  height: 24px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.toggleOn {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.toggleHandle {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.dangerBtn {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #ef4444;
+  color: white;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  width: fit-content;
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: var(--accent-primary);
+  color: white;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.addBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.toolList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.toolItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.toolIcon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.toolInfo {
+  flex: 1;
+}
+
+.toolInfo h4 {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin-bottom: 0.125rem;
+}
+
+.toolInfo p {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.toolActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.iconBtn {
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBtn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.emptyTools {
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  border: 2px dashed var(--border-color);
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  gap: 1.5rem;
+  color: var(--text-secondary);
+}

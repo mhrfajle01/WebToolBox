@@ -1,0 +1,119 @@
+.toolContainer {
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.inputSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inputGroup label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.input {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  border-color: var(--accent-primary);
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.primaryBtn {
+  flex: 1;
+  padding: 1rem;
+  background: var(--accent-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.primaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondaryBtn {
+  padding: 1rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+}
+
+.resultSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.resultGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+
+.resultCard {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: 1.5rem 1rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.resultCard span {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent-primary);
+}
+
+.resultCard label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.copyBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+}

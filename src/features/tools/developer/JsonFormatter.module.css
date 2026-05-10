@@ -1,0 +1,86 @@
+.container {
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 350px;
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: 0.9375rem;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  outline: none;
+  resize: vertical;
+}
+
+.buttonGrid {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: white;
+}
+
+.footer {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.primaryBtn {
+  flex: 1;
+  padding: 1rem;
+  background: var(--accent-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.secondaryBtn {
+  padding: 1rem 1.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.primaryBtn:disabled, .secondaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

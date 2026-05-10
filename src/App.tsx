@@ -39,7 +39,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <Toaster position="top-center" richColors />
       <Routes>
         <Route path="/login" element={<Login />} />

@@ -56,9 +56,15 @@ const PasswordGenerator: React.FC = () => {
     // and rely on the initial state for the first password.
   }, []);
 
-  const copyToClipboard = () => {
+  const copyToClipboard = (e: React.MouseEvent) => {
     navigator.clipboard.writeText(password);
     toast.success('Password copied to clipboard');
+    
+    // Dispatch burst event
+    const event = new CustomEvent('success-burst', { 
+      detail: { x: e.clientX, y: e.clientY } 
+    });
+    window.dispatchEvent(event);
   };
 
   const getStrength = () => {
@@ -81,7 +87,7 @@ const PasswordGenerator: React.FC = () => {
       <div className={styles.displaySection}>
         <div className={styles.passwordOutput}>
           <span>{password}</span>
-          <button onClick={copyToClipboard} className={styles.copyBtn} title="Copy to clipboard">
+          <button onClick={(e) => copyToClipboard(e)} className={styles.copyBtn} title="Copy to clipboard">
             <Copy size={20} />
           </button>
         </div>

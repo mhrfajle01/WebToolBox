@@ -7,6 +7,26 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useToolStore } from '../store/useToolStore';
 import type { ToolCategory } from '../types/tool';
 import MainLayout from '../components/layout/MainLayout';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05
+    }
+  }
+};
+
+const itemVariants: Variants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { type: 'spring', stiffness: 300, damping: 24 }
+  }
+};
 
 const Tools: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,12 +87,20 @@ const Tools: React.FC = () => {
     <MainLayout>
       <div className={styles.toolsPage}>
         <header className={styles.header}>
-          <div className={styles.titleInfo}>
+          <motion.div 
+            className={styles.titleInfo}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
             <h1>Tool Directory</h1>
             <p>Browse our suite of {allTools.length} premium utilities.</p>
-          </div>
+          </motion.div>
           
-          <div className={styles.controls}>
+          <motion.div 
+            className={styles.controls}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
             <div className={styles.searchBox}>
               <Search size={20} />
               <input 
@@ -82,10 +110,15 @@ const Tools: React.FC = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-          </div>
+          </motion.div>
         </header>
 
-        <div className={styles.filterBar}>
+        <motion.div 
+          className={styles.filterBar}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           {categories.map(cat => (
             <button 
               key={cat} 
@@ -95,73 +128,95 @@ const Tools: React.FC = () => {
               {cat}
             </button>
           ))}
-        </div>
+        </motion.div>
 
-        <div className={styles.grid}>
-          {filteredTools.map(tool => (
-            <div 
-              key={tool.id} 
-              className={`${styles.toolCard} glass`}
-              onClick={() => handleToolClick(tool)}
-              style={{ cursor: 'pointer' }}
-            >
-              <div className={styles.toolHeader}>
-                <div className={styles.iconWrapper}>
-                  {typeof tool.icon === 'string' ? (
-                    <span className={styles.customIcon}>{tool.icon}</span>
-                  ) : (
-                    <tool.icon size={24} />
-                  )}
-                </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {tool.isCustom && (
+        <motion.div 
+          className={styles.grid}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          layout
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredTools.map(tool => (
+              <motion.div 
+                layout
+                key={tool.id} 
+                className={`${styles.toolCard} glass`}
+                onClick={() => handleToolClick(tool)}
+                variants={itemVariants}
+                initial="hidden"
+                animate="visible"
+                exit={{ opacity: 0, scale: 0.9 }}
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className={styles.toolHeader}>
+                  <div className={styles.iconWrapper}>
+                    {typeof tool.icon === 'string' ? (
+                      <span className={styles.customIcon}>{tool.icon}</span>
+                    ) : (
+                      <tool.icon size={24} />
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {tool.isCustom && (
+                      <button 
+                        className={styles.deleteBtn}
+                        onClick={(e) => handleDeleteCustom(e, tool.id)}
+                        title="Remove custom tool"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
                     <button 
-                      className={styles.deleteBtn}
-                      onClick={(e) => handleDeleteCustom(e, tool.id)}
-                      title="Remove custom tool"
+                      className={`${styles.favBtn} ${favorites.includes(tool.id) ? styles.activeFavorite : ''}`}
+                      onClick={(e) => handleToggleFavorite(e, tool.id)}
                     >
-                      <Trash2 size={18} />
+                      <Star size={18} fill={favorites.includes(tool.id) ? "#f59e0b" : "none"} />
                     </button>
-                  )}
-                  <button 
-                    className={`${styles.favBtn} ${favorites.includes(tool.id) ? styles.activeFavorite : ''}`}
-                    onClick={(e) => handleToggleFavorite(e, tool.id)}
-                  >
-                    <Star size={18} fill={favorites.includes(tool.id) ? "#f59e0b" : "none"} />
+                  </div>
+                </div>
+                <div className={styles.toolBody}>
+                  <h3>{tool.name}</h3>
+                  <p>{tool.description}</p>
+                </div>
+                <div className={styles.toolFooter}>
+                  <span className={styles.categoryTag}>{tool.category}</span>
+                  <button className={styles.openBtn}>
+                    {tool.isCustom ? <><ExternalLink size={16} /> Open Tool</> : 'Open Tool'}
                   </button>
                 </div>
-              </div>
-              <div className={styles.toolBody}>
-                <h3>{tool.name}</h3>
-                <p>{tool.description}</p>
-              </div>
-              <div className={styles.toolFooter}>
-                <span className={styles.categoryTag}>{tool.category}</span>
-                <button className={styles.openBtn}>
-                  {tool.isCustom ? <><ExternalLink size={16} /> Open Tool</> : 'Open Tool'}
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
 
         {filteredTools.length === 0 && (activeCategory !== 'Personal' || customTools.length === 0) && (
-          <div className={styles.emptyState}>
+          <motion.div 
+            className={styles.emptyState}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
             <Filter size={48} />
             <h2>No tools found</h2>
             <p>Try adjusting your search or filter to find what you're looking for.</p>
-          </div>
+          </motion.div>
         )}
 
         {activeCategory === 'Personal' && customTools.length === 0 && (
-          <div className={styles.emptyState}>
+          <motion.div 
+            className={styles.emptyState}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
             <Plus size={48} />
             <h2>No custom tools yet</h2>
             <p>Add your frequently used websites in Settings for quick access.</p>
             <button className={styles.addBtn} style={{ marginTop: '1rem' }} onClick={() => navigate('/settings')}>
               Go to Settings
             </button>
-          </div>
+          </motion.div>
         )}
       </div>
     </MainLayout>

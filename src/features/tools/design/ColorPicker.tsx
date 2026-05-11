@@ -41,10 +41,16 @@ const ColorPicker: React.FC = () => {
     return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
   };
 
-  const handleCopy = (value: string) => {
+  const handleCopy = (e: React.MouseEvent, value: string) => {
     play('success');
     navigator.clipboard.writeText(value);
     toast.success(`${value} copied!`);
+
+    // Dispatch burst event
+    const event = new CustomEvent('success-burst', { 
+      detail: { x: e.clientX, y: e.clientY } 
+    });
+    window.dispatchEvent(event);
   };
 
   const generateRandom = () => {
@@ -74,17 +80,17 @@ const ColorPicker: React.FC = () => {
       </div>
 
       <div className={styles.valuesGrid}>
-        <div className={styles.valueCard} onClick={() => handleCopy(color.toUpperCase())}>
+        <div className={styles.valueCard} onClick={(e) => handleCopy(e, color.toUpperCase())}>
           <label>HEX</label>
           <span>{color.toUpperCase()}</span>
           <Copy size={16} className={styles.copyIcon} />
         </div>
-        <div className={styles.valueCard} onClick={() => handleCopy(hexToRgb(color))}>
+        <div className={styles.valueCard} onClick={(e) => handleCopy(e, hexToRgb(color))}>
           <label>RGB</label>
           <span>{hexToRgb(color)}</span>
           <Copy size={16} className={styles.copyIcon} />
         </div>
-        <div className={styles.valueCard} onClick={() => handleCopy(hexToHsl(color))}>
+        <div className={styles.valueCard} onClick={(e) => handleCopy(e, hexToHsl(color))}>
           <label>HSL</label>
           <span>{hexToHsl(color)}</span>
           <Copy size={16} className={styles.copyIcon} />

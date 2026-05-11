@@ -16,7 +16,8 @@ import {
   Moon,
   Sun,
   ChevronRight,
-  User as UserIcon
+  User as UserIcon,
+  Monitor
 } from 'lucide-react';
 import { auth } from '../../lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -39,6 +40,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024 && !isFullBleed);
   const [prevPathname, setPrevPathname] = useState(location.pathname);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [isFocusMode, setIsFocusMode] = useState(false);
+  const [bursts, setBursts] = useState<{ id: number; x: number; y: number }[]>([]);
 
   // Auto-close sidebar on mobile when navigating
   if (location.pathname !== prevPathname) {
@@ -51,6 +54,22 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const handleBurst = (e: Event) => {
+      const customEvent = e as CustomEvent<{ x: number; y: number }>;
+      const id = Date.now();
+      const x = customEvent.detail?.x ?? window.innerWidth / 2;
+      const y = customEvent.detail?.y ?? window.innerHeight / 2;
+      setBursts(prev => [...prev, { id, x, y }]);
+      setTimeout(() => {
+        setBursts(prev => prev.filter(b => b.id !== id));
+      }, 1000);
+    };
+
+    window.addEventListener('success-burst', handleBurst);
+    return () => window.removeEventListener('success-burst', handleBurst);
+  }, []);
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const saved = localStorage.getItem('theme') as 'light' | 'dark';
@@ -73,6 +92,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
           if (!prev) play('palette');
           return !prev;
         });
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        setIsFocusMode(prev => !prev);
+        play('switch');
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -112,14 +136,27 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
+  const toggleFocusMode = () => {
+    play('switch');
+    setIsFocusMode(prev => !prev);
+  };
+
   const handleLogout = async () => {
     play('click');
     await signOut(auth);
     navigate('/login');
   };
 
+  const bottomNavItems = [
+    { path: '/', icon: LayoutDashboard, label: 'Home' },
+    { path: '/tools', icon: Wrench, label: 'Tools' },
+    { path: '/favorites', icon: Star, label: 'Favorites' },
+    { path: '/history', icon: History, label: 'History' },
+    { path: '/settings', icon: Settings, label: 'Settings' },
+  ];
+
   return (
-    <div className={styles.layout}>
+    <div className={`${styles.layout} ${isFocusMode ? styles.focusMode : ''}`}>
       {/* Sidebar Overlay (Mobile only) */}
       <AnimatePresence>
         {isSidebarOpen && window.innerWidth <= 1024 && (
@@ -133,6 +170,47 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
         )}
       </AnimatePresence>
 
+      {/* Success Bursts */}
+      <AnimatePresence>
+        {bursts.map(burst => (
+          <motion.div
+            key={burst.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              left: burst.x,
+              top: burst.y,
+              zIndex: 9999,
+              pointerEvents: 'none'
+            }}
+          >
+            {[...Array(12)].map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ x: 0, y: 0, scale: 0 }}
+                animate={{ 
+                  x: Math.cos(i * 30 * (Math.PI / 180)) * 60,
+                  y: Math.sin(i * 30 * (Math.PI / 180)) * 60,
+                  scale: 1,
+                  opacity: 0
+                }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                style={{
+                  position: 'absolute',
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: 'var(--accent-primary)',
+                  boxShadow: '0 0 10px var(--accent-primary)'
+                }}
+              />
+            ))}
+          </motion.div>
+        ))}
+      </AnimatePresence>
+
       {/* Sidebar */}
       <aside 
         ref={sidebarRef}
@@ -140,7 +218,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
       >
         <div className={styles.sidebarHeader}>
           <Link to="/" className={styles.logo} onClick={() => play('click')}>
-            <Wrench size={24} color="var(--accent-primary)" />
+            <motion.div
+              whileHover={{ rotate: 180 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Wrench size={24} color="var(--accent-primary)" />
+            </motion.div>
             <span>WebToolBox</span>
           </Link>
           <button className={styles.closeBtn} onClick={toggleSidebar}>
@@ -151,36 +234,54 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
         <nav className={styles.nav}>
           <div className={styles.navGroup}>
             <label>Overview</label>
-            <Link to="/" className={`${styles.navLink} ${isActive('/') ? styles.active : ''}`} onClick={() => play('click')}>
-              <LayoutDashboard size={20} />
-              <span>Dashboard</span>
-              {isActive('/') && <ChevronRight size={14} className={styles.activeIndicator} />}
-            </Link>
-            <Link to="/tools" className={`${styles.navLink} ${isActive('/tools') ? styles.active : ''}`} onClick={() => play('click')}>
-              <Wrench size={20} />
-              <span>Tools</span>
-              {isActive('/tools') && <ChevronRight size={14} className={styles.activeIndicator} />}
-            </Link>
+            <motion.div key="overview" whileHover={{ x: 5 }}>
+              <Link to="/" className={`${styles.navLink} ${isActive('/') ? styles.active : ''}`} onClick={() => play('click')}>
+                <motion.div whileHover={{ scale: 1.2, rotate: 5 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+                  <LayoutDashboard size={20} />
+                </motion.div>
+                <span>Dashboard</span>
+                {isActive('/') && <ChevronRight size={14} className={styles.activeIndicator} />}
+              </Link>
+            </motion.div>
+            <motion.div key="tools" whileHover={{ x: 5 }}>
+              <Link to="/tools" className={`${styles.navLink} ${isActive('/tools') ? styles.active : ''}`} onClick={() => play('click')}>
+                <motion.div whileHover={{ scale: 1.2, rotate: 5 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+                  <Wrench size={20} />
+                </motion.div>
+                <span>Tools</span>
+                {isActive('/tools') && <ChevronRight size={14} className={styles.activeIndicator} />}
+              </Link>
+            </motion.div>
           </div>
 
           <div className={styles.navGroup}>
             <label>Personal</label>
-            <Link to="/favorites" className={`${styles.navLink} ${isActive('/favorites') ? styles.active : ''}`} onClick={() => play('click')}>
-              <Star size={20} />
-              <span>Favorites</span>
-              {isActive('/favorites') && <ChevronRight size={14} className={styles.activeIndicator} />}
-            </Link>
-            <Link to="/history" className={`${styles.navLink} ${isActive('/history') ? styles.active : ''}`} onClick={() => play('click')}>
-              <History size={20} />
-              <span>History</span>
-              {isActive('/history') && <ChevronRight size={14} className={styles.activeIndicator} />}
-            </Link>
+            <motion.div key="favorites" whileHover={{ x: 5 }}>
+              <Link to="/favorites" className={`${styles.navLink} ${isActive('/favorites') ? styles.active : ''}`} onClick={() => play('click')}>
+                <motion.div whileHover={{ scale: 1.2, rotate: 5 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+                  <Star size={20} />
+                </motion.div>
+                <span>Favorites</span>
+                {isActive('/favorites') && <ChevronRight size={14} className={styles.activeIndicator} />}
+              </Link>
+            </motion.div>
+            <motion.div key="history" whileHover={{ x: 5 }}>
+              <Link to="/history" className={`${styles.navLink} ${isActive('/history') ? styles.active : ''}`} onClick={() => play('click')}>
+                <motion.div whileHover={{ scale: 1.2, rotate: 5 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+                  <History size={20} />
+                </motion.div>
+                <span>History</span>
+                {isActive('/history') && <ChevronRight size={14} className={styles.activeIndicator} />}
+              </Link>
+            </motion.div>
           </div>
         </nav>
 
         <div className={styles.sidebarFooter}>
           <Link to="/settings" className={`${styles.navLink} ${isActive('/settings') ? styles.active : ''}`} onClick={() => play('click')}>
-            <Settings size={20} />
+            <motion.div whileHover={{ scale: 1.2, rotate: 45 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+              <Settings size={20} />
+            </motion.div>
             <span>Settings</span>
           </Link>
         </div>
@@ -208,6 +309,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
           </div>
 
             <div className={styles.headerRight}>
+              <button 
+                className={`${styles.iconBtn} ${styles.hideOnMobile} ${isFocusMode ? styles.activeFocus : ''}`} 
+                onClick={toggleFocusMode}
+                title="Toggle Focus Mode (⌘+F)"
+              >
+                <motion.div animate={isFocusMode ? { scale: [1, 1.2, 1] } : {}}>
+                  <Monitor size={20} />
+                </motion.div>
+              </button>
               <button className={styles.iconBtn} onClick={toggleTheme}>
                 {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
               </button>
@@ -253,9 +363,37 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
           </header>
         )}
 
-        <section className={`${styles.content} ${isFullBleed ? styles.fullBleed : ''}`}>
-          {children}
+        <section className={`${styles.content} ${isFullBleed ? styles.fullBleed : ''} ${!isFullBleed ? styles.hasBottomNav : ''}`}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className={styles.pageWrapper}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </section>
+
+        {/* Bottom Navigation for Mobile */}
+        {!isFullBleed && (
+          <nav className={`${styles.bottomNav} glass`}>
+            {bottomNavItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`${styles.bottomNavItem} ${isActive(item.path) ? styles.bottomNavActive : ''}`}
+                onClick={() => play('click')}
+              >
+                <item.icon size={20} />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </nav>
+        )}
 
         <CommandPalette 
           isOpen={isPaletteOpen} 

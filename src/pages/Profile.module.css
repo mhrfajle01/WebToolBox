@@ -36,6 +36,13 @@
   gap: 1.5rem;
 }
 
+@media (max-width: 640px) {
+  .card {
+    padding: 1.25rem;
+    gap: 1.25rem;
+  }
+}
+
 .avatarSection {
   display: flex;
   align-items: center;
@@ -44,10 +51,26 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+@media (max-width: 640px) {
+  .avatarSection {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
 .avatarWrapper {
   position: relative;
   width: 120px;
   height: 120px;
+}
+
+@media (max-width: 640px) {
+  .avatarWrapper {
+    width: 90px;
+    height: 90px;
+  }
 }
 
 .avatarWrapper img {
@@ -83,6 +106,17 @@
   font-size: 1.75rem;
   font-weight: 800;
   margin-bottom: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .nameSection h2 {
+    font-size: 1.25rem;
+  }
+  .nameSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 .badge {

@@ -103,7 +103,7 @@ const Settings: React.FC = () => {
 
             {activeTab === 'tools' && (
               <div className={styles.section}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <div className={styles.sectionHeader}>
                   <h3>Custom Tools</h3>
                   <button className={styles.addBtn} onClick={() => setIsModalOpen(true)}>
                     <Plus size={16} /> Add New Tool

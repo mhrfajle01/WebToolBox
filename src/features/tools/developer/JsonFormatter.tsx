@@ -26,10 +26,16 @@ const JsonFormatter: React.FC = () => {
     }
   };
 
-  const handleCopy = () => {
+  const handleCopy = (e: React.MouseEvent) => {
     if (!json) return;
     navigator.clipboard.writeText(json);
     toast.success('Copied to clipboard');
+
+    // Dispatch burst event
+    const event = new CustomEvent('success-burst', { 
+      detail: { x: e.clientX, y: e.clientY } 
+    });
+    window.dispatchEvent(event);
   };
 
   return (
@@ -51,7 +57,7 @@ const JsonFormatter: React.FC = () => {
       </div>
 
       <div className={styles.footer}>
-        <button onClick={handleCopy} className={styles.primaryBtn} disabled={!json}>
+        <button onClick={(e) => handleCopy(e)} className={styles.primaryBtn} disabled={!json}>
           <Copy size={18} /> Copy
         </button>
         <button onClick={() => setJson('')} className={styles.secondaryBtn} disabled={!json}>

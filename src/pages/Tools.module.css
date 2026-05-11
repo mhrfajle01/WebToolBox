@@ -162,9 +162,17 @@
   gap: 1.5rem;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
   .grid {
     grid-template-columns: 1fr;
+    gap: 0.875rem;
   }
 }
 
@@ -176,6 +184,13 @@
   gap: 1.5rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .toolCard {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
 }
 
 .toolCard:hover {
@@ -200,6 +215,18 @@
   justify-content: center;
   color: var(--accent-primary);
   border: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .iconWrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+  .iconWrapper svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .favBtn {
@@ -227,6 +254,17 @@
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .toolBody h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  .toolBody p {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
 }
 
 .toolBody p {

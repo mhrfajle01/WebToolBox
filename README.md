@@ -1,17 +1,22 @@
-# React + TypeScript + Vite
+# 🛠️ WebToolBox
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**The ultimate premium utility suite for developers and designers.**
 
-Currently, two official plugins are available:
+🚀 **Live Demo:** [https://mhrfajle01.github.io/WebToolBox/](https://mhrfajle01.github.io/WebToolBox/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Modern UI/UX:** Fully responsive, animated, and glassmorphic design.
+- **Utility Suite:** Access tools for developers, designers, and general productivity.
+- **Custom Tools:** Add and manage your own frequently used external links.
+- **PWA Support:** Install WebToolBox on your device for offline access and a native feel.
+- **Personalization:** Favorites, usage history, and theme detection.
 
-## Expanding the ESLint configuration
+---
+
+## 🚀 Quick Start
 
 If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 

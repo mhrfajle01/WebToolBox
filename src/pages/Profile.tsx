@@ -9,6 +9,7 @@ import MainLayout from '../components/layout/MainLayout';
 const Profile: React.FC = () => {
   const { user } = useAuthStore();
   const { favorites, history } = useToolStore();
+  const [avatarError, setAvatarError] = React.useState(false);
 
   if (!user) return null;
 
@@ -25,7 +26,17 @@ const Profile: React.FC = () => {
           <section className={`${styles.card} ${styles.profileMain} glass`}>
             <div className={styles.avatarSection}>
               <div className={styles.avatarWrapper}>
-                <img src={user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&size=128`} alt="Profile" />
+                {!avatarError ? (
+                  <img 
+                    src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&size=128&background=random`} 
+                    alt="Profile" 
+                    onError={() => setAvatarError(true)}
+                  />
+                ) : (
+                  <div className={styles.avatarPlaceholder}>
+                    <User size={48} />
+                  </div>
+                )}
                 <button className={styles.editAvatar} title="Change Avatar">
                   <Camera size={16} />
                 </button>

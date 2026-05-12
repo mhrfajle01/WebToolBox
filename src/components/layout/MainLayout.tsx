@@ -52,6 +52,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
   }
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
 
@@ -325,7 +326,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
               {user ? (
                 <div className={styles.userContainer} ref={userMenuRef}>
                   <button className={styles.avatarBtn} onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
-                    <img src={user.photoURL || `https://ui-avatars.com/api/?name=${user.email}`} alt="User" />
+                    {!avatarError ? (
+                      <img 
+                        src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`} 
+                        alt="User" 
+                        onError={() => setAvatarError(true)}
+                      />
+                    ) : (
+                      <UserIcon size={20} className={styles.fallbackIcon} />
+                    )}
                   </button>
                   
                   <AnimatePresence>

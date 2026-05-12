@@ -368,6 +368,10 @@
   object-fit: cover;
 }
 
+.fallbackIcon {
+  color: var(--text-secondary);
+}
+
 .userMenu {
   position: absolute;
   top: calc(100% + 12px);

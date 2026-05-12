@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebToolBox</title>
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="WebToolBox" />
+    <link rel="apple-touch-icon" href="./favicon.svg" />
+    <script type="text/javascript">
+      (function(l) {
+        if (l.search[1] === 'p' && l.search[2] === '=') {
+          var decoded = l.search.slice(3).split('&').map(function(s) { 
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          var base = l.pathname.endsWith('/') ? l.pathname.slice(0, -1) : l.pathname;
+          window.history.replaceState(null, null, base + decoded + l.hash);
+        }
+      }(window.location))
+    </script>
+    <script type="module" crossorigin src="/WebToolBox/assets/index-DlPE5es_.js"></script>
+    <link rel="modulepreload" crossorigin href="/WebToolBox/assets/jsx-runtime-BHyy6RMJ.js">
+    <link rel="stylesheet" crossorigin href="/WebToolBox/assets/index-DbyRFQoE.css">
+  <link rel="manifest" href="/WebToolBox/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/WebToolBox/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

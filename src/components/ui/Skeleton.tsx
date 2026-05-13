@@ -7,6 +7,7 @@ interface SkeletonProps {
   borderRadius?: string | number;
   className?: string;
   circle?: boolean;
+  style?: React.CSSProperties;
 }
 
 const Skeleton: React.FC<SkeletonProps> = ({ 
@@ -14,18 +15,20 @@ const Skeleton: React.FC<SkeletonProps> = ({
   height, 
   borderRadius, 
   className = '',
-  circle = false
+  circle = false,
+  style = {}
 }) => {
-  const style: React.CSSProperties = {
+  const internalStyle: React.CSSProperties = {
     width: width,
     height: height,
     borderRadius: circle ? '50%' : borderRadius,
+    ...style
   };
 
   return (
     <div 
       className={`${styles.skeleton} ${className}`} 
-      style={style}
+      style={internalStyle}
     />
   );
 };

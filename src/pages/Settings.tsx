@@ -10,7 +10,6 @@ import {
   Trash2,
   ExternalLink,
   Wrench,
-  Zap,
   Check
 } from 'lucide-react';
 import { toast } from 'sonner';

@@ -9,15 +9,16 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { Wrench, Loader2, Mail, Lock, User } from 'lucide-react';
+import { Wrench, Loader2, Mail, Lock, User, ArrowRight, UserPlus } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { toast } from 'sonner';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, sendPasswordReset } = useAuthStore();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,11 +36,31 @@ const Login: React.FC = () => {
     try {
       await signInWithPopup(auth, provider);
       toast.success('Successfully signed in!');
-    } catch (error: any) {
-      console.error('Login failed', error);
-      toast.error(error.message || 'Login failed.');
+    } catch (error) {
+      const err = error as Error;
+      console.error('Login failed', err);
+      toast.error(err.message || 'Login failed.');
     } finally {
       setIsLoggingIn(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error('Please enter your email address first.');
+      return;
+    }
+    
+    setIsSendingReset(true);
+    try {
+      await sendPasswordReset(email);
+      toast.success('Password reset email sent! Check your inbox.');
+    } catch (error) {
+      const err = error as Error;
+      console.error('Reset password error', err);
+      toast.error(err.message || 'Failed to send reset email.');
+    } finally {
+      setIsSendingReset(false);
     }
   };
 
@@ -62,9 +83,10 @@ const Login: React.FC = () => {
         await signInWithEmailAndPassword(auth, email, password);
         toast.success('Signed in successfully!');
       }
-    } catch (error: any) {
-      console.error('Auth error', error);
-      toast.error(error.message || 'Authentication failed');
+    } catch (error) {
+      const err = error as Error;
+      console.error('Auth error', err);
+      toast.error(err.message || 'Authentication failed');
     } finally {
       setIsLoggingIn(false);
     }
@@ -134,8 +156,36 @@ const Login: React.FC = () => {
                 required
               />
             </div>
+            
+            {!isSignUp && (
+              <button 
+                type="button" 
+                className={styles.forgotPassword}
+                onClick={handleForgotPassword}
+                disabled={isSendingReset}
+              >
+                {isSendingReset ? 'Sending...' : 'Forgot Password?'}
+              </button>
+            )}
+
             <button type="submit" className={styles.submitBtn} disabled={isLoggingIn}>
-              {isLoggingIn ? <Loader2 className="animate-spin" size={20} /> : (isSignUp ? 'Create Account' : 'Continue')}
+              {isLoggingIn ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : (
+                <>
+                  {isSignUp ? (
+                    <>
+                      <UserPlus size={20} />
+                      <span>Create Account</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Continue</span>
+                      <ArrowRight size={20} />
+                    </>
+                  )}
+                </>
+              )}
             </button>
           </form>
 

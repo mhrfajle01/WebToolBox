@@ -1,17 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './Profile.module.css';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToolStore } from '../store/useToolStore';
 import { User, Mail, Calendar, ShieldCheck, Edit3, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 import MainLayout from '../components/layout/MainLayout';
+import EditProfileModal from '../components/ui/EditProfileModal';
 
 const Profile: React.FC = () => {
-  const { user } = useAuthStore();
+  const { user, sendPasswordReset } = useAuthStore();
   const { favorites, history } = useToolStore();
   const [avatarError, setAvatarError] = React.useState(false);
+  const [lastPhotoURL, setLastPhotoURL] = React.useState(user?.photoURL);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+
+  if (user?.photoURL !== lastPhotoURL) {
+    setLastPhotoURL(user?.photoURL);
+    setAvatarError(false);
+  }
 
   if (!user) return null;
+
+  const handlePasswordReset = async () => {
+    setIsResetting(true);
+    try {
+      await sendPasswordReset();
+      toast.success("Password reset email sent! Please check your inbox.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to send reset email. Please try again later.");
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   return (
     <MainLayout>
@@ -26,9 +48,9 @@ const Profile: React.FC = () => {
           <section className={`${styles.card} ${styles.profileMain} glass`}>
             <div className={styles.avatarSection}>
               <div className={styles.avatarWrapper}>
-                {!avatarError ? (
+                {user.photoURL && !avatarError ? (
                   <img 
-                    src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&size=128&background=random`} 
+                    src={user.photoURL} 
                     alt="Profile" 
                     onError={() => setAvatarError(true)}
                   />
@@ -37,7 +59,11 @@ const Profile: React.FC = () => {
                     <User size={48} />
                   </div>
                 )}
-                <button className={styles.editAvatar} title="Change Avatar">
+                <button 
+                  className={styles.editAvatar} 
+                  title="Change Avatar"
+                  onClick={() => setIsEditModalOpen(true)}
+                >
                   <Camera size={16} />
                 </button>
               </div>
@@ -62,7 +88,7 @@ const Profile: React.FC = () => {
               </div>
             </div>
 
-            <button className={styles.editBtn} onClick={() => toast.info("Profile editing is coming soon!")}>
+            <button className={styles.editBtn} onClick={() => setIsEditModalOpen(true)}>
               <Edit3 size={16} /> Edit Profile
             </button>
           </section>
@@ -86,13 +112,23 @@ const Profile: React.FC = () => {
             <section className={`${styles.card} glass`}>
               <h3>Account Security</h3>
               <p className={styles.secText}>Your account is protected with Firebase Authentication.</p>
-              <button className={styles.secBtn} onClick={() => toast.info("Password reset email sent!")}>
-                Reset Password
+              <button 
+                className={styles.secBtn} 
+                onClick={handlePasswordReset}
+                disabled={isResetting}
+              >
+                {isResetting ? "Sending..." : "Reset Password"}
               </button>
             </section>
           </div>
         </div>
       </div>
+
+      <EditProfileModal 
+        key={isEditModalOpen ? 'open' : 'closed'}
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
+      />
     </MainLayout>
   );
 };

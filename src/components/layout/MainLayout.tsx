@@ -53,8 +53,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, isFullBleed = false }
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
+  const [lastPhotoURL, setLastPhotoURL] = useState(user?.photoURL);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
+
+  if (user?.photoURL !== lastPhotoURL) {
+    setLastPhotoURL(user?.photoURL);
+    setAvatarError(false);
+  }
 
   useEffect(() => {
     const handleBurst = (e: Event) => {

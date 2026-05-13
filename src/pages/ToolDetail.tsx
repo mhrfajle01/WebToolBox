@@ -134,9 +134,15 @@ const ToolDetail: React.FC = () => {
             <div className={`${styles.infoCard} glass`}>
               <h3>Quick Actions</h3>
               <ul className={styles.actionList}>
-                <li>Copy Results</li>
-                <li>Reset Tool</li>
-                <li>Export Data</li>
+                <li onClick={() => window.dispatchEvent(new CustomEvent('tool-action', { detail: 'copy' }))}>
+                  Copy Results
+                </li>
+                <li onClick={() => window.dispatchEvent(new CustomEvent('tool-action', { detail: 'reset' }))}>
+                  Reset Tool
+                </li>
+                <li onClick={() => window.dispatchEvent(new CustomEvent('tool-action', { detail: 'export' }))}>
+                  Export Data
+                </li>
               </ul>
             </div>
           </aside>

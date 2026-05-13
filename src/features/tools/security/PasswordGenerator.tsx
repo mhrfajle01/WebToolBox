@@ -3,6 +3,7 @@ import styles from './PasswordGenerator.module.css';
 import { Copy, RefreshCw } from 'lucide-react';
 
 import { toast } from 'sonner';
+import { useToolActions } from '../../../hooks/useToolActions';
 
 const PasswordGenerator: React.FC = () => {
   const [length, setLength] = useState(16);
@@ -44,9 +45,9 @@ const PasswordGenerator: React.FC = () => {
     return generated;
   });
 
-  const generatePassword = () => {
+  const generatePassword = useCallback(() => {
     setPassword(generatePasswordValue());
-  };
+  }, [generatePasswordValue]);
 
   useEffect(() => {
     // Only auto-generate if settings change, but to avoid the lint error
@@ -56,16 +57,38 @@ const PasswordGenerator: React.FC = () => {
     // and rely on the initial state for the first password.
   }, []);
 
-  const copyToClipboard = (e: React.MouseEvent) => {
+  const copyToClipboard = useCallback((e?: React.MouseEvent) => {
     navigator.clipboard.writeText(password);
     toast.success('Password copied to clipboard');
     
     // Dispatch burst event
+    const x = e ? e.clientX : window.innerWidth / 2;
+    const y = e ? e.clientY : window.innerHeight / 2;
     const event = new CustomEvent('success-burst', { 
-      detail: { x: e.clientX, y: e.clientY } 
+      detail: { x, y } 
     });
     window.dispatchEvent(event);
-  };
+  }, [password]);
+
+  const handleExport = useCallback(() => {
+    const blob = new Blob([password], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'generated-password.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Password exported as text file');
+  }, [password]);
+
+  useToolActions({
+    onCopy: () => copyToClipboard(),
+    onReset: () => {
+      generatePassword();
+      toast.success('New password generated');
+    },
+    onExport: handleExport
+  });
 
   const getStrength = () => {
     let score = 0;

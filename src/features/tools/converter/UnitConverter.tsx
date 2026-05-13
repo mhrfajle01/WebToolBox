@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import styles from './UnitConverter.module.css';
 import { ArrowRightLeft, RefreshCw, Copy } from 'lucide-react';
 import { toast } from 'sonner';
+import { useToolActions } from '../../../hooks/useToolActions';
 
 type UnitCategory = 'length' | 'mass' | 'temperature';
 
@@ -74,12 +75,36 @@ const UnitConverter: React.FC = () => {
     setToUnit(fromUnit);
   };
 
-  const copyResult = () => {
+  const copyResult = useCallback(() => {
     if (result !== null) {
       navigator.clipboard.writeText(result.toFixed(4));
       toast.success('Result copied to clipboard');
     }
-  };
+  }, [result]);
+
+  const handleReset = useCallback(() => {
+    setValue('1');
+    toast.success('Tool reset');
+  }, []);
+
+  const handleExport = useCallback(() => {
+    if (result === null) return;
+    const exportText = `${value} ${fromUnit} = ${result.toFixed(4)} ${toUnit}`;
+    const blob = new Blob([exportText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'unit-conversion.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Conversion exported as text file');
+  }, [value, fromUnit, result, toUnit]);
+
+  useToolActions({
+    onCopy: copyResult,
+    onReset: handleReset,
+    onExport: handleExport
+  });
 
   return (
     <div className={`${styles.container} glass animate-fade-in`}>
@@ -127,7 +152,7 @@ const UnitConverter: React.FC = () => {
           <button className={styles.copyBtn} onClick={copyResult}>
             <Copy size={18} /> Copy Result
           </button>
-          <button className={styles.resetBtn} onClick={() => setValue('1')}>
+          <button className={styles.resetBtn} onClick={handleReset}>
             <RefreshCw size={18} /> Reset
           </button>
         </div>

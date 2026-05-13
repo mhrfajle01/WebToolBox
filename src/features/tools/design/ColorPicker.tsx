@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styles from './ColorPicker.module.css';
 import { Palette, Copy, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSound } from '../../../hooks/useSound';
+import { useToolActions } from '../../../hooks/useToolActions';
 
 const ColorPicker: React.FC = () => {
   const [color, setColor] = useState('#3b82f6');
@@ -41,23 +42,46 @@ const ColorPicker: React.FC = () => {
     return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
   };
 
-  const handleCopy = (e: React.MouseEvent, value: string) => {
+  const handleCopy = useCallback((e?: React.MouseEvent | null, value: string = color.toUpperCase()) => {
     play('success');
     navigator.clipboard.writeText(value);
     toast.success(`${value} copied!`);
 
     // Dispatch burst event
+    const x = e ? (e as React.MouseEvent).clientX : window.innerWidth / 2;
+    const y = e ? (e as React.MouseEvent).clientY : window.innerHeight / 2;
     const event = new CustomEvent('success-burst', { 
-      detail: { x: e.clientX, y: e.clientY } 
+      detail: { x, y } 
     });
     window.dispatchEvent(event);
-  };
+  }, [color, play]);
 
-  const generateRandom = () => {
+  const generateRandom = useCallback(() => {
     const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
     play('click');
     setColor(randomColor);
-  };
+  }, [play]);
+
+  const handleExport = useCallback(() => {
+    const text = `Color Palette:\nHEX: ${color.toUpperCase()}\nRGB: ${hexToRgb(color)}\nHSL: ${hexToHsl(color)}`;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `color-${color.slice(1)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Color exported as text file');
+  }, [color]);
+
+  useToolActions({
+    onCopy: () => handleCopy(null, color.toUpperCase()),
+    onReset: () => {
+      generateRandom();
+      toast.success('Random color generated');
+    },
+    onExport: handleExport
+  });
 
   return (
     <div className={`${styles.container} glass animate-fade-in`}>

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styles from './LoremIpsum.module.css';
 import { Copy, Trash2, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSound } from '../../../hooks/useSound';
+import { useToolActions } from '../../../hooks/useToolActions';
 
 const LOREM_TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
@@ -11,19 +12,45 @@ const LoremIpsum: React.FC = () => {
   const [result, setResult] = useState('');
   const { play } = useSound();
 
-  const generate = () => {
+  const generate = useCallback(() => {
     const text = Array(paragraphs).fill(LOREM_TEXT).join('\n\n');
     setResult(text);
     play('success');
     toast.success(`Generated ${paragraphs} paragraphs`);
-  };
+  }, [paragraphs, play]);
 
-  const handleCopy = () => {
-    if (!result) return;
+  const handleCopy = useCallback(() => {
+    if (!result) {
+      toast.error('Nothing to copy');
+      return;
+    }
     play('click');
     navigator.clipboard.writeText(result);
     toast.success('Copied to clipboard');
-  };
+  }, [result, play]);
+
+  const handleReset = useCallback(() => {
+    setResult('');
+    toast.success('Tool reset');
+  }, []);
+
+  const handleExport = useCallback(() => {
+    if (!result) return;
+    const blob = new Blob([result], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'lorem-ipsum.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Text exported as file');
+  }, [result]);
+
+  useToolActions({
+    onCopy: handleCopy,
+    onReset: handleReset,
+    onExport: handleExport
+  });
 
   return (
     <div className={`${styles.container} glass animate-fade-in`}>
@@ -58,7 +85,7 @@ const LoremIpsum: React.FC = () => {
           <button onClick={handleCopy} className={styles.actionBtn} disabled={!result}>
             <Copy size={18} /> Copy All
           </button>
-          <button onClick={() => setResult('')} className={styles.actionBtn} disabled={!result}>
+          <button onClick={handleReset} className={styles.actionBtn} disabled={!result}>
             <Trash2 size={18} /> Clear
           </button>
         </div>

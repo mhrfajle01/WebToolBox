@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styles from './AgeCalculator.module.css';
 import { Calendar, RefreshCcw, Copy } from 'lucide-react';
+import { useToolActions } from '../../../hooks/useToolActions';
+import { toast } from 'sonner';
 
 const AgeCalculator: React.FC = () => {
   const [dob, setDob] = useState('');
@@ -29,10 +31,37 @@ const AgeCalculator: React.FC = () => {
     setResult({ years, months, days });
   };
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setDob('');
     setResult(null);
-  };
+    toast.success('Tool reset');
+  }, []);
+
+  const handleCopy = useCallback(() => {
+    if (!result) return;
+    const text = `${result.years} years, ${result.months} months, ${result.days} days`;
+    navigator.clipboard.writeText(text);
+    toast.success('Age result copied to clipboard');
+  }, [result]);
+
+  const handleExport = useCallback(() => {
+    if (!result) return;
+    const text = `Age Calculation:\nDate of Birth: ${dob}\nAge: ${result.years} years, ${result.months} months, ${result.days} days`;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'age-calculation.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Result exported as text file');
+  }, [dob, result]);
+
+  useToolActions({
+    onCopy: handleCopy,
+    onReset: handleReset,
+    onExport: handleExport
+  });
 
   return (
     <div className={`${styles.toolContainer} glass animate-fade-in`}>
@@ -72,7 +101,7 @@ const AgeCalculator: React.FC = () => {
               <label>Days</label>
             </div>
           </div>
-          <button className={styles.copyBtn}>
+          <button className={styles.copyBtn} onClick={handleCopy}>
             <Copy size={16} /> Copy Result
           </button>
         </div>

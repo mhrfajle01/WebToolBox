@@ -17,6 +17,7 @@ import {
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useToolStore } from '../../../store/useToolStore';
 import { toast } from 'sonner';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 const PasswordManager: React.FC = () => {
   const { user } = useAuthStore();
@@ -24,6 +25,11 @@ const PasswordManager: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; id: string; service: string }>({
+    isOpen: false,
+    id: '',
+    service: ''
+  });
 
   const [newPassword, setNewPassword] = useState({
     service: '',
@@ -60,11 +66,13 @@ const PasswordManager: React.FC = () => {
   };
 
   const handleDelete = (id: string, service: string) => {
-    if (!user) return;
-    if (window.confirm(`Are you sure you want to delete the password for ${service}?`)) {
-      removeSavedPassword(user.uid, id);
-      toast.info('Password removed');
-    }
+    setDeleteConfirm({ isOpen: true, id, service });
+  };
+
+  const confirmDelete = () => {
+    if (!user || !deleteConfirm.id) return;
+    removeSavedPassword(user.uid, deleteConfirm.id);
+    toast.info('Password removed');
   };
 
   const filteredPasswords = savedPasswords.filter(p => 
@@ -74,6 +82,16 @@ const PasswordManager: React.FC = () => {
 
   return (
     <div className={`${styles.container} animate-fade-in`}>
+      <ConfirmModal 
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmDelete}
+        title="Delete Password?"
+        message={`Are you sure you want to delete the saved credentials for ${deleteConfirm.service}? This action cannot be undone.`}
+        confirmText="Delete"
+        type="danger"
+      />
+      
       <header className={styles.header}>
         <div className={styles.headerTitle}>
           <ShieldCheck size={32} color="var(--accent-primary)" />

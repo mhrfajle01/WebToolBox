@@ -1,16 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styles from './CaseConverter.module.css';
 import { Copy, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useToolActions } from '../../../hooks/useToolActions';
 
 const CaseConverter: React.FC = () => {
   const [text, setText] = useState('');
 
-  const handleCopy = () => {
-    if (!text) return;
+  const handleCopy = useCallback(() => {
+    if (!text) {
+      toast.error('Nothing to copy');
+      return;
+    }
     navigator.clipboard.writeText(text);
     toast.success('Copied to clipboard');
-  };
+  }, [text]);
+
+  const handleReset = useCallback(() => {
+    setText('');
+    toast.success('Tool reset');
+  }, []);
+
+  const handleExport = useCallback(() => {
+    if (!text) {
+      toast.error('Nothing to export');
+      return;
+    }
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'case-converter-result.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Result exported as text file');
+  }, [text]);
+
+  useToolActions({
+    onCopy: handleCopy,
+    onReset: handleReset,
+    onExport: handleExport
+  });
 
   const convert = (type: 'upper' | 'lower' | 'sentence' | 'title') => {
     if (!text) return;
@@ -54,7 +84,7 @@ const CaseConverter: React.FC = () => {
         <button onClick={handleCopy} className={styles.primaryBtn} disabled={!text}>
           <Copy size={18} /> Copy
         </button>
-        <button onClick={() => setText('')} className={styles.secondaryBtn} disabled={!text}>
+        <button onClick={handleReset} className={styles.secondaryBtn} disabled={!text}>
           <Trash2 size={18} /> Clear
         </button>
       </div>

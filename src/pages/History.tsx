@@ -7,10 +7,11 @@ import { Clock, ExternalLink, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSound } from '../hooks/useSound';
 import MainLayout from '../components/layout/MainLayout';
+import Skeleton from '../components/ui/Skeleton';
 
 const History: React.FC = () => {
   const { user } = useAuthStore();
-  const { history, fetchUserData } = useToolStore();
+  const { history, loading, fetchUserData } = useToolStore();
   const navigate = useNavigate();
   const { play } = useSound();
 
@@ -35,6 +36,21 @@ const History: React.FC = () => {
     }).format(date);
   };
 
+  const renderSkeletons = () => (
+    <div className={styles.list}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className={`${styles.historyItem} glass`}>
+          <Skeleton width="40px" height="40px" borderRadius="10px" />
+          <div className={styles.details} style={{ flex: 1, marginLeft: '12px' }}>
+            <Skeleton width="150px" height="18px" style={{ marginBottom: '8px' }} />
+            <Skeleton width="100px" height="14px" />
+          </div>
+          <Skeleton width="80px" height="32px" borderRadius="8px" />
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <MainLayout>
       <div className={styles.container}>
@@ -45,45 +61,49 @@ const History: React.FC = () => {
           </div>
         </header>
 
-        {history.length > 0 ? (
-          <div className={styles.list}>
-            {history.map((item) => {
-              const tool = toolRegistry.find(t => t.id === item.toolId);
-              if (!tool) return null;
+        {loading ? renderSkeletons() : (
+          <>
+            {history.length > 0 ? (
+              <div className={styles.list}>
+                {history.map((item) => {
+                  const tool = toolRegistry.find(t => t.id === item.toolId);
+                  if (!tool) return null;
 
-              return (
-                <div 
-                  key={item.id} 
-                  className={`${styles.historyItem} glass`}
-                  onClick={() => {
-                    play('click');
-                    navigate(`/tools/${tool.id}`);
-                  }}
-                >
-                  <div className={styles.toolIcon}>
-                    <tool.icon size={20} />
-                  </div>
-                  <div className={styles.details}>
-                    <h3>{tool.name}</h3>
-                    <div className={styles.meta}>
-                      <span className={styles.category}>{tool.category}</span>
-                      <span className={styles.dot}>•</span>
-                      <span className={styles.time}><Calendar size={14} /> {formatDate(item.timestamp)}</span>
+                  return (
+                    <div 
+                      key={item.id} 
+                      className={`${styles.historyItem} glass`}
+                      onClick={() => {
+                        play('click');
+                        navigate(`/tools/${tool.id}`);
+                      }}
+                    >
+                      <div className={styles.toolIcon}>
+                        <tool.icon size={20} />
+                      </div>
+                      <div className={styles.details}>
+                        <h3>{tool.name}</h3>
+                        <div className={styles.meta}>
+                          <span className={styles.category}>{tool.category}</span>
+                          <span className={styles.dot}>•</span>
+                          <span className={styles.time}><Calendar size={14} /> {formatDate(item.timestamp)}</span>
+                        </div>
+                      </div>
+                      <button className={styles.launchBtn}>
+                        Launch <ExternalLink size={14} />
+                      </button>
                     </div>
-                  </div>
-                  <button className={styles.launchBtn}>
-                    Launch <ExternalLink size={14} />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className={styles.empty}>
-            <Clock size={64} color="var(--border-color)" />
-            <h2>No history yet</h2>
-            <p>Tools you use will appear here for quick access.</p>
-          </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className={styles.empty}>
+                <Clock size={64} color="var(--border-color)" />
+                <h2>No history yet</h2>
+                <p>Tools you use will appear here for quick access.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </MainLayout>

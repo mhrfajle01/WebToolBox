@@ -9,12 +9,15 @@ import {
   Plus,
   Trash2,
   ExternalLink,
-  Wrench
+  Wrench,
+  Zap,
+  Check
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSound } from '../hooks/useSound';
 import { useToolStore } from '../store/useToolStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { toolRegistry } from '../lib/toolRegistry';
 import AddCustomToolModal from '../components/ui/AddCustomToolModal';
 import MainLayout from '../components/layout/MainLayout';
 import { useNavigate } from 'react-router-dom';
@@ -22,7 +25,7 @@ import { useNavigate } from 'react-router-dom';
 const Settings: React.FC = () => {
   const { play } = useSound();
   const { user } = useAuthStore();
-  const { customTools, removeCustomTool } = useToolStore();
+  const { customTools, quickTools, toggleQuickTool, removeCustomTool } = useToolStore();
   const [activeTab, setActiveTab] = useState('general');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -36,6 +39,17 @@ const Settings: React.FC = () => {
     localStorage.setItem('settings_sounds', enabled.toString());
     if (enabled) play('click');
     toast.success(`Sound effects ${enabled ? 'enabled' : 'disabled'}`);
+  };
+
+  const handleToggleQuickTool = async (toolId: string) => {
+    if (!user) return;
+    try {
+      await toggleQuickTool(user.uid, toolId);
+      play('click');
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
+    }
   };
 
   const handleDeleteCustom = (toolId: string, name: string) => {
@@ -103,37 +117,64 @@ const Settings: React.FC = () => {
 
             {activeTab === 'tools' && (
               <div className={styles.section}>
-                <div className={styles.sectionHeader}>
-                  <h3>Custom Tools</h3>
-                  <button className={styles.addBtn} onClick={() => setIsModalOpen(true)}>
-                    <Plus size={16} /> Add New Tool
-                  </button>
+                <div className={styles.subSection}>
+                  <div className={styles.sectionHeader}>
+                    <h3>Quick Tool System</h3>
+                    <span className={styles.badge}>{quickTools.length}/4</span>
+                  </div>
+                  <p className={styles.helpText}>Choose up to 4 tools for your dashboard quick access.</p>
+                  <div className={styles.quickToolGrid}>
+                    {toolRegistry.map(tool => (
+                      <button 
+                        key={tool.id}
+                        className={`${styles.quickToolItem} ${quickTools.includes(tool.id) ? styles.quickToolActive : ''}`}
+                        onClick={() => handleToggleQuickTool(tool.id)}
+                      >
+                        <div className={styles.quickToolIcon}>
+                          <tool.icon size={20} />
+                        </div>
+                        <span className={styles.quickToolName}>{tool.name}</span>
+                        {quickTools.includes(tool.id) && <div className={styles.checkIcon}><Check size={12} /></div>}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                
-                <div className={styles.toolList}>
-                  {customTools.length > 0 ? (
-                    customTools.map(tool => (
-                      <div key={tool.id} className={styles.toolItem}>
-                        <div className={styles.toolIcon}>{tool.icon}</div>
-                        <div className={styles.toolInfo}>
-                          <h4>{tool.name}</h4>
-                          <p>{tool.url}</p>
+
+                <div className={styles.divider} />
+
+                <div className={styles.subSection}>
+                  <div className={styles.sectionHeader}>
+                    <h3>Custom Tools</h3>
+                    <button className={styles.addBtn} onClick={() => setIsModalOpen(true)}>
+                      <Plus size={16} /> Add New Tool
+                    </button>
+                  </div>
+                  
+                  <div className={styles.toolList}>
+                    {customTools.length > 0 ? (
+                      customTools.map(tool => (
+                        <div key={tool.id} className={styles.toolItem}>
+                          <div className={styles.toolIcon}>{tool.icon}</div>
+                          <div className={styles.toolInfo}>
+                            <h4>{tool.name}</h4>
+                            <p>{tool.url}</p>
+                          </div>
+                          <div className={styles.toolActions}>
+                            <button className={styles.iconBtn} onClick={() => navigate(`/tools/${tool.id}`)} title="Launch Tool">
+                              <ExternalLink size={16} />
+                            </button>
+                            <button className={styles.iconBtn} onClick={() => handleDeleteCustom(tool.id, tool.name)} title="Remove Tool">
+                              <Trash2 size={16} color="#ef4444" />
+                            </button>
+                          </div>
                         </div>
-                        <div className={styles.toolActions}>
-                          <button className={styles.iconBtn} onClick={() => navigate(`/tools/${tool.id}`)} title="Launch Tool">
-                            <ExternalLink size={16} />
-                          </button>
-                          <button className={styles.iconBtn} onClick={() => handleDeleteCustom(tool.id, tool.name)} title="Remove Tool">
-                            <Trash2 size={16} color="#ef4444" />
-                          </button>
-                        </div>
+                      ))
+                    ) : (
+                      <div className={styles.emptyTools}>
+                        <p>You haven't added any custom tools yet.</p>
                       </div>
-                    ))
-                  ) : (
-                    <div className={styles.emptyTools}>
-                      <p>You haven't added any custom tools yet.</p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             )}

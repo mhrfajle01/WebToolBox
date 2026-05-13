@@ -24,9 +24,11 @@ interface ToolStore {
   favorites: string[];
   history: ToolHistory[];
   customTools: CustomTool[];
+  quickTools: string[];
   loading: boolean;
   fetchUserData: (userId: string) => Promise<void>;
   toggleFavorite: (userId: string, toolId: string) => Promise<void>;
+  toggleQuickTool: (userId: string, toolId: string) => Promise<void>;
   addToHistory: (userId: string, toolId: string) => Promise<void>;
   addCustomTool: (userId: string, tool: Omit<CustomTool, 'id' | 'createdAt'>) => Promise<void>;
   removeCustomTool: (userId: string, toolId: string) => Promise<void>;
@@ -36,6 +38,7 @@ export const useToolStore = create<ToolStore>((set, get) => ({
   favorites: [],
   history: [],
   customTools: [],
+  quickTools: [],
   loading: false,
 
   fetchUserData: async (userId) => {
@@ -45,6 +48,11 @@ export const useToolStore = create<ToolStore>((set, get) => ({
       const favsRef = collection(db, 'users', userId, 'favorites');
       const favsSnap = await getDocs(favsRef);
       const favorites = favsSnap.docs.map(doc => doc.id);
+
+      // Fetch Quick Tools
+      const quickRef = collection(db, 'users', userId, 'quickTools');
+      const quickSnap = await getDocs(quickRef);
+      const quickTools = quickSnap.docs.map(doc => doc.id);
 
       // Fetch History
       const historyRef = collection(db, 'users', userId, 'history');
@@ -63,7 +71,7 @@ export const useToolStore = create<ToolStore>((set, get) => ({
         ...doc.data()
       })) as CustomTool[];
 
-      set({ favorites, history, customTools, loading: false });
+      set({ favorites, history, customTools, quickTools, loading: false });
     } catch (error) {
       console.error('Error fetching user data:', error);
       set({ loading: false });
@@ -85,6 +93,29 @@ export const useToolStore = create<ToolStore>((set, get) => ({
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
+    }
+  },
+
+  toggleQuickTool: async (userId, toolId) => {
+    const { quickTools } = get();
+    const isQuick = quickTools.includes(toolId);
+    const quickDocRef = doc(db, 'users', userId, 'quickTools', toolId);
+
+    try {
+      if (isQuick) {
+        await deleteDoc(quickDocRef);
+        set({ quickTools: quickTools.filter(id => id !== toolId) });
+      } else {
+        // Limit to 4 tools for the dashboard
+        if (quickTools.length >= 4) {
+          throw new Error('Maximum 4 quick tools allowed');
+        }
+        await setDoc(quickDocRef, { timestamp: serverTimestamp() });
+        set({ quickTools: [...quickTools, toolId] });
+      }
+    } catch (error) {
+      console.error('Error toggling quick tool:', error);
+      throw error;
     }
   },
 

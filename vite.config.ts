@@ -40,4 +40,25 @@ export default defineConfig({
     })
   ],
   base: '/WebToolBox/',
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('firebase')) {
+              return 'vendor-firebase';
+            }
+            if (id.includes('framer-motion') || id.includes('lucide-react') || id.includes('recharts')) {
+              return 'vendor-ui';
+            }
+            if (id.includes('react') || id.includes('zustand')) {
+              return 'vendor-react';
+            }
+            return 'vendor';
+          }
+        }
+      }
+    }
+  }
 })

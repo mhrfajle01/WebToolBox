@@ -10,7 +10,8 @@ export type ToolCategory =
   | 'Design' 
   | 'Time' 
   | 'Files'
-  | 'Personal';
+  | 'Personal'
+  | 'Productivity';
 
 export interface ToolDefinition {
   id: string;

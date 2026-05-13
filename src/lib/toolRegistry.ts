@@ -1,8 +1,16 @@
-import { Calculator, Type, Globe, Code, Lock, Shield, FileText, Palette } from 'lucide-react';
+import { Calculator, Type, Globe, Code, Lock, Shield, FileText, Palette, Trophy } from 'lucide-react';
 import React from 'react';
 import type { ToolDefinition } from '../types/tool';
 
 export const toolRegistry: ToolDefinition[] = [
+  {
+    id: 'habit-tracker',
+    name: 'HabitForge',
+    description: 'Track daily habits, sign-ins, and maintain streaks for personal growth.',
+    category: 'Productivity',
+    icon: Trophy,
+    component: React.lazy(() => import('../features/tools/productivity/HabitTracker')),
+  },
   {
     id: 'age-calculator',
     name: 'Age Calculator',

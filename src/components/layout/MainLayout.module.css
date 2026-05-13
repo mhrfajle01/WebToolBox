@@ -40,7 +40,7 @@
 
 /* Sidebar Styling */
 .sidebar {
-  width: 280px;
+  width: 240px;
   display: flex;
   flex-direction: column;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s ease;
@@ -103,7 +103,7 @@
   }
   
   .sidebar.closed {
-    width: 280px; /* Keep width but hide offscreen */
+    width: 240px; /* Keep width but hide offscreen */
     transform: translateX(-100%);
   }
 
@@ -482,7 +482,7 @@
 
 @media (max-width: 640px) {
   .content {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 }
 

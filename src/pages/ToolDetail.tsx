@@ -114,7 +114,7 @@ const ToolDetail: React.FC = () => {
           </div>
         </header>
 
-        <div className={styles.layout}>
+        <div className={`${styles.layout} ${builtInTool.id === 'habit-tracker' ? styles.fullWidth : ''}`}>
           <div className={styles.mainContent}>
             <React.Suspense fallback={
               <div className={styles.loader}>
@@ -126,26 +126,28 @@ const ToolDetail: React.FC = () => {
             </React.Suspense>
           </div>
 
-          <aside className={styles.infoSidebar}>
-            <div className={`${styles.infoCard} glass`}>
-              <h3><Info size={18} /> About this tool</h3>
-              <p>{builtInTool.description}</p>
-            </div>
-            <div className={`${styles.infoCard} glass`}>
-              <h3>Quick Actions</h3>
-              <ul className={styles.actionList}>
-                <li onClick={() => window.dispatchEvent(new CustomEvent('tool-action', { detail: 'copy' }))}>
-                  Copy Results
-                </li>
-                <li onClick={() => window.dispatchEvent(new CustomEvent('tool-action', { detail: 'reset' }))}>
-                  Reset Tool
-                </li>
-                <li onClick={() => window.dispatchEvent(new CustomEvent('tool-action', { detail: 'export' }))}>
-                  Export Data
-                </li>
-              </ul>
-            </div>
-          </aside>
+          {builtInTool.id !== 'habit-tracker' && (
+            <aside className={styles.infoSidebar}>
+              <div className={`${styles.infoCard} glass`}>
+                <h3><Info size={18} /> About this tool</h3>
+                <p>{builtInTool.description}</p>
+              </div>
+              <div className={`${styles.infoCard} glass`}>
+                <h3>Quick Actions</h3>
+                <ul className={styles.actionList}>
+                  <li onClick={() => window.dispatchEvent(new CustomEvent('tool-action', { detail: 'copy' }))}>
+                    Copy Results
+                  </li>
+                  <li onClick={() => window.dispatchEvent(new CustomEvent('tool-action', { detail: 'reset' }))}>
+                    Reset Tool
+                  </li>
+                  <li onClick={() => window.dispatchEvent(new CustomEvent('tool-action', { detail: 'export' }))}>
+                    Export Data
+                  </li>
+                </ul>
+              </div>
+            </aside>
+          )}
         </div>
       </div>
     </MainLayout>

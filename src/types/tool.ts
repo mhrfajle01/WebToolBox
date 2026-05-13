@@ -32,3 +32,12 @@ export interface CustomTool {
   icon: string;
   createdAt: Date | { toDate: () => Date } | null;
 }
+
+export interface SavedPassword {
+  id: string;
+  service: string;
+  username: string;
+  passwordValue: string;
+  notes?: string;
+  createdAt: Date | { toDate: () => Date } | null;
+}

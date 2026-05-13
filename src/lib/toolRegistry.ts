@@ -67,4 +67,12 @@ export const toolRegistry: ToolDefinition[] = [
     icon: Palette,
     component: React.lazy(() => import('../features/tools/design/ColorPicker')),
   },
+  {
+    id: 'password-manager',
+    name: 'Password Manager',
+    description: 'Securely store and manage your credentials.',
+    category: 'Security',
+    icon: Shield,
+    component: React.lazy(() => import('../features/tools/security/PasswordManager')),
+  },
 ];

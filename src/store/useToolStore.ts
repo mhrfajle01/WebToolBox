@@ -12,7 +12,7 @@ import {
   limit
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { CustomTool } from '../types/tool';
+import type { CustomTool, SavedPassword } from '../types/tool';
 
 interface ToolHistory {
   id: string;
@@ -25,6 +25,7 @@ interface ToolStore {
   history: ToolHistory[];
   customTools: CustomTool[];
   quickTools: string[];
+  savedPasswords: SavedPassword[];
   loading: boolean;
   fetchUserData: (userId: string) => Promise<void>;
   toggleFavorite: (userId: string, toolId: string) => Promise<void>;
@@ -32,6 +33,8 @@ interface ToolStore {
   addToHistory: (userId: string, toolId: string) => Promise<void>;
   addCustomTool: (userId: string, tool: Omit<CustomTool, 'id' | 'createdAt'>) => Promise<void>;
   removeCustomTool: (userId: string, toolId: string) => Promise<void>;
+  addSavedPassword: (userId: string, password: Omit<SavedPassword, 'id' | 'createdAt'>) => Promise<void>;
+  removeSavedPassword: (userId: string, passwordId: string) => Promise<void>;
 }
 
 export const useToolStore = create<ToolStore>((set, get) => ({
@@ -39,6 +42,7 @@ export const useToolStore = create<ToolStore>((set, get) => ({
   history: [],
   customTools: [],
   quickTools: [],
+  savedPasswords: [],
   loading: false,
 
   fetchUserData: async (userId) => {
@@ -71,7 +75,16 @@ export const useToolStore = create<ToolStore>((set, get) => ({
         ...doc.data()
       })) as CustomTool[];
 
-      set({ favorites, history, customTools, quickTools, loading: false });
+      // Fetch Saved Passwords
+      const passwordsRef = collection(db, 'users', userId, 'savedPasswords');
+      const passwordsQuery = query(passwordsRef, orderBy('createdAt', 'desc'));
+      const passwordsSnap = await getDocs(passwordsQuery);
+      const savedPasswords = passwordsSnap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as SavedPassword[];
+
+      set({ favorites, history, customTools, quickTools, savedPasswords, loading: false });
     } catch (error) {
       console.error('Error fetching user data:', error);
       set({ loading: false });
@@ -170,6 +183,42 @@ export const useToolStore = create<ToolStore>((set, get) => ({
       }));
     } catch (error) {
       console.error('Error removing custom tool:', error);
+    }
+  },
+
+  addSavedPassword: async (userId, password) => {
+    try {
+      const passwordsRef = collection(db, 'users', userId, 'savedPasswords');
+      const docRef = await addDoc(passwordsRef, {
+        ...password,
+        createdAt: serverTimestamp()
+      });
+      
+      const newPassword: SavedPassword = {
+        id: docRef.id,
+        ...password,
+        createdAt: new Date()
+      };
+
+      set(state => ({
+        savedPasswords: [newPassword, ...state.savedPasswords]
+      }));
+    } catch (error) {
+      console.error('Error adding saved password:', error);
+      throw error;
+    }
+  },
+
+  removeSavedPassword: async (userId, passwordId) => {
+    try {
+      const passwordDocRef = doc(db, 'users', userId, 'savedPasswords', passwordId);
+      await deleteDoc(passwordDocRef);
+      
+      set(state => ({
+        savedPasswords: state.savedPasswords.filter(p => p.id !== passwordId)
+      }));
+    } catch (error) {
+      console.error('Error removing saved password:', error);
     }
   }
 }));

@@ -8,7 +8,6 @@ import {
   Eye, 
   EyeOff, 
   Copy, 
-  ExternalLink,
   Lock,
   User,
   Globe,
@@ -21,7 +20,7 @@ import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 const PasswordManager: React.FC = () => {
   const { user } = useAuthStore();
-  const { savedPasswords, addSavedPassword, removeSavedPassword, loading } = useToolStore();
+  const { savedPasswords, addSavedPassword, removeSavedPassword } = useToolStore();
   const [isAdding, setIsAdding] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
